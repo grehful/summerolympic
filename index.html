@@ -39,7 +39,7 @@
         <div class="muted">종목을 골라 주세요</div>
       </header>
       <nav class="grid" id="grid"></nav>
-      <p class="tip muted">크롬 메뉴 ⋮ → <b>홈 화면에 추가</b>를 누르면 앱처럼 전체화면으로 즐길 수 있어요.</p>
+      <p class="tip muted" id="tip">크롬 메뉴 ⋮ → <b>홈 화면에 추가</b>를 누르면 앱처럼 전체화면으로 즐길 수 있어요.</p>
     </div>
   </main>
   <script src="shared/js/games.js"></script>
@@ -49,6 +49,7 @@
       return '<a class="game-card' + (g.ready ? '' : ' soon') + '" href="' + (g.ready ? 'games/' + g.id + '/' : '#') + '">' +
         '<span class="icon">' + g.icon + '</span><span class="name">' + g.name + '</span><span class="desc">' + g.desc + '</span></a>';
     }).join('');
+    if (SO.isApp) document.getElementById('tip').remove();
     SO.registerSW('sw.js');
   </script>
 </body>

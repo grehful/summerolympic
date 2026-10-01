@@ -94,6 +94,7 @@
     SO.keepAwake();
     SO.sound.unlock();
     var el = document.documentElement;
+    if (SO.isApp) return; // 앱은 이미 전체화면
     try {
       if (!document.fullscreenElement && el.requestFullscreen) {
         el.requestFullscreen({ navigationUI: 'hide' }).catch(function () {});
@@ -101,9 +102,12 @@
     } catch (e) { /* 무시 */ }
   };
 
-  // 오프라인 실행 / 홈 화면 설치용 서비스 워커 (사이트 루트 기준 경로를 넘겨준다)
+  // 안드로이드 앱(APK) 안에서 실행 중인지
+  SO.isApp = location.hostname === 'appassets.androidplatform.net';
+
+  // 오프라인 실행 / 홈 화면 설치용 서비스 워커 (사이트 루트 기준 경로를 넘겨준다). 앱에서는 필요 없음
   SO.registerSW = function (path) {
-    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    if (!SO.isApp && 'serviceWorker' in navigator && location.protocol !== 'file:') {
       navigator.serviceWorker.register(path).catch(function () {});
     }
   };

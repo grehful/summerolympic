@@ -5,6 +5,14 @@
 
 ## 플레이하기
 
+### 안드로이드 앱 (APK)
+1. 폰에서 [`apk/summerolympic.apk`](apk/summerolympic.apk) 를 열고 **Download** (⋯ → *Download raw file*)
+2. 받은 파일을 눌러 설치 — "출처를 알 수 없는 앱" 경고가 나오면 **설정 → 이 출처 허용** 후 다시 설치
+3. 인터넷 없이 실행됩니다
+
+새 버전으로 다시 빌드: `./android/build.sh` → `android/build/summerolympic.apk` (같은 키로 서명되어 덮어쓰기 설치 가능)
+
+### 웹으로 실행
 1. 저장소 **Settings → Pages**에서 *Deploy from a branch* → `main` / `/ (root)` 선택
 2. 폰 크롬에서 `https://grehful.github.io/summerolympic/` 접속
 3. 크롬 메뉴 ⋮ → **홈 화면에 추가** → 앱처럼 전체화면 실행 (한 번 열면 오프라인에서도 동작)
@@ -38,11 +46,14 @@ shared/                 모든 종목 공통
   js/games.js             종목 목록 (메인 화면에 표시)
 games/
   long-jump/              멀리뛰기
+android/                안드로이드 앱 껍데기 (WebView) + build.sh
+apk/                    빌드된 설치 파일
 ```
 
 ### 새 종목 추가하기
 1. `games/<종목>/index.html` 생성 — `shared/` 의 CSS/JS를 불러와서 `SO.setupPlayers(...)`로 인원 설정 화면 재사용
 2. `shared/js/games.js` 에 항목 추가 (`ready: true`)
+3. `./android/build.sh` 로 APK 다시 빌드 → `apk/` 에 복사
 
 ## 로컬에서 실행
 
