@@ -1,0 +1,21 @@
+# apk/ 의 설치 파일이 바뀌면 GitHub 릴리스(latest)에 올린다 → 폰에서 Releases 페이지로 받기 쉬움
+name: Release APK
+on:
+  push:
+    paths: ['apk/**', '.github/workflows/release-apk.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest apk/summerolympic.apk apk/summerolympic.zip \
+            --target "$GITHUB_SHA" --title "썸머올림픽 최신 버전" \
+            --notes "summerolympic.apk 를 눌러 받아 설치하세요. APK가 안 받아지면 summerolympic.zip 을 받아 내 파일에서 압축을 풀고 설치하세요."
