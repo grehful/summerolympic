@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>Summer Olympic</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="shared/css/common.css">
+  <style>
+    .hub { max-width: 560px; width: 100%; margin: 0 auto; }
+    .hub-head { text-align: center; padding: 20px 0 8px; }
+    .rings { font-size: 15px; letter-spacing: 4px; }
+    .rings span { display: inline-block; width: 22px; height: 22px; border: 4px solid; border-radius: 50%; margin: 0 -3px; }
+    .hub-head h1 { font-size: 30px; margin: 10px 0 4px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .game-card {
+      display: flex; flex-direction: column; gap: 6px; padding: 18px 14px; min-height: 140px;
+      background: var(--panel); border-radius: var(--radius); color: var(--text); text-decoration: none;
+    }
+    .game-card:active { transform: scale(0.97); }
+    .game-card .icon { font-size: 40px; }
+    .game-card .name { font-size: 19px; font-weight: 800; }
+    .game-card .desc { font-size: 13px; color: var(--muted); }
+    .game-card.soon { opacity: 0.45; pointer-events: none; }
+    .tip { margin-top: 20px; font-size: 13px; text-align: center; }
+  </style>
+</head>
+<body>
+  <main class="screen">
+    <div class="hub">
+      <header class="hub-head">
+        <div class="rings">
+          <span style="border-color:#0081c8"></span><span style="border-color:#fcb131"></span><span style="border-color:#e5e7eb"></span><span style="border-color:#00a651"></span><span style="border-color:#ee334e"></span>
+        </div>
+        <h1>Summer Olympic</h1>
+        <div class="muted">종목을 골라 주세요</div>
+      </header>
+      <nav class="grid" id="grid"></nav>
+      <p class="tip muted">크롬 메뉴 ⋮ → <b>홈 화면에 추가</b>를 누르면 앱처럼 전체화면으로 즐길 수 있어요.</p>
+    </div>
+  </main>
+  <script src="shared/js/games.js"></script>
+  <script src="shared/js/device.js"></script>
+  <script>
+    document.getElementById('grid').innerHTML = SO.GAMES.map(function (g) {
+      return '<a class="game-card' + (g.ready ? '' : ' soon') + '" href="' + (g.ready ? 'games/' + g.id + '/' : '#') + '">' +
+        '<span class="icon">' + g.icon + '</span><span class="name">' + g.name + '</span><span class="desc">' + g.desc + '</span></a>';
+    }).join('');
+    SO.registerSW('sw.js');
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0d1b2a"/>
+  <g fill="none" stroke-width="22">
+    <circle cx="146" cy="210" r="62" stroke="#0081c8"/>
+    <circle cx="256" cy="210" r="62" stroke="#e5e7eb"/>
+    <circle cx="366" cy="210" r="62" stroke="#ee334e"/>
+    <circle cx="201" cy="282" r="62" stroke="#fcb131"/>
+    <circle cx="311" cy="282" r="62" stroke="#00a651"/>
+  </g>
+  <text x="256" y="430" font-family="Arial, sans-serif" font-size="64" font-weight="800" fill="#ffb703" text-anchor="middle">SUMMER</text>
+</svg>

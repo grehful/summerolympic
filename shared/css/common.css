@@ -1,0 +1,120 @@
+/* 모든 종목이 같이 쓰는 기본 스타일 */
+:root {
+  --bg: #0d1b2a;
+  --panel: #1b2b40;
+  --panel-2: #24395a;
+  --text: #f4f7fb;
+  --muted: #9fb3c8;
+  --accent: #ffb703;
+  --accent-2: #fb8500;
+  --good: #4ade80;
+  --bad: #f87171;
+  --gold: #ffd166;
+  --silver: #d6dde6;
+  --bronze: #e09f6b;
+  --radius: 16px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* 게임 화면에서는 길게 눌러도 선택/메뉴가 뜨지 않게 */
+.no-select, .no-select * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 22px;
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text);
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: linear-gradient(180deg, var(--accent), var(--accent-2)); color: #1a1205; }
+.btn-ghost { background: transparent; border: 2px solid var(--panel-2); }
+.btn-block { width: 100%; }
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+}
+.hidden { display: none !important; }
+
+.card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+h1, h2, h3 { margin: 0 0 12px; }
+.muted { color: var(--muted); }
+
+/* ---- 플레이어 설정 화면 (shared/js/players.js) ---- */
+.setup { max-width: 480px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.setup-title { text-align: center; font-size: 28px; margin-top: 8px; }
+.setup-sub { text-align: center; margin-top: -8px; }
+
+.stepper { display: flex; align-items: center; justify-content: center; gap: 20px; }
+.stepper button {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--panel-2); font-size: 32px; font-weight: 800;
+}
+.stepper button:disabled { opacity: 0.35; }
+.stepper .value { font-size: 56px; font-weight: 800; min-width: 80px; text-align: center; font-variant-numeric: tabular-nums; }
+
+.seg { display: flex; gap: 8px; }
+.seg button {
+  flex: 1; min-height: 48px; border-radius: 12px;
+  background: var(--panel-2); font-weight: 700; font-size: 17px;
+}
+.seg button[aria-pressed="true"] { background: var(--accent); color: #1a1205; }
+
+.name-list { display: grid; gap: 8px; }
+.name-row { display: flex; align-items: center; gap: 10px; }
+.name-row .dot { width: 18px; height: 18px; border-radius: 50%; flex: none; }
+.name-row input {
+  flex: 1; min-width: 0; height: 46px; border-radius: 12px; border: 2px solid transparent;
+  background: var(--bg); color: var(--text); padding: 0 12px; font-size: 17px;
+}
+.name-row input:focus { outline: none; border-color: var(--accent); }
+
+/* ---- 순위표 ---- */
+.ranking { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.ranking th, .ranking td { padding: 10px 6px; text-align: left; }
+.ranking th { color: var(--muted); font-weight: 600; font-size: 14px; }
+.ranking tr + tr td { border-top: 1px solid var(--panel-2); }
+.ranking td.num { text-align: right; font-weight: 700; }
+.ranking .rank { width: 40px; font-size: 20px; }
