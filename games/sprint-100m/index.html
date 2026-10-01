@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0d1b2a">
-  <title>멀리뛰기</title>
+  <title>100m 달리기</title>
   <link rel="manifest" href="../../manifest.webmanifest">
   <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../shared/css/common.css">
   <link rel="stylesheet" href="../../shared/css/game.css">
-  <link rel="stylesheet" href="longjump.css">
+  <link rel="stylesheet" href="sprint.css">
 </head>
 <body>
   <!-- 1. 플레이어 설정 -->
@@ -27,7 +27,11 @@
 
       <div class="meters">
         <div class="meter"><div class="meter-label">시속</div><div class="meter-value"><span id="speed">0.0</span><small>km/h</small></div></div>
-        <div class="meter"><div class="meter-label">각도</div><div class="meter-value"><span id="angle">0.0</span><small>°</small></div></div>
+        <div class="meter"><div class="meter-label">기록</div><div class="meter-value"><span id="clock">0.00</span><small>초</small></div></div>
+      </div>
+      <div class="stamina" id="stamina">
+        <div class="stamina-head"><span>스태미너</span><span id="staminaNote"></span></div>
+        <div class="stamina-bar"><div class="stamina-fill" id="staminaFill"></div><div class="stamina-low"></div></div>
       </div>
       <div class="to-line" id="toLine"></div>
 
@@ -38,16 +42,16 @@
         <div class="intro-turn" id="introTurn"></div>
         <div class="intro-name" id="introName"></div>
         <ol class="howto">
-          <li><b>달리기</b> 버튼을 마구 연타해서 속도를 올려요</li>
-          <li><b>점프 구간</b>에 들어오면 <b>점프</b> 버튼을 꾹 누르세요 — 누르는 동안 각도가 올라가요</li>
-          <li>손을 떼면 점프! 발판의 <b class="red">빨간 선</b>을 넘으면 파울</li>
+          <li><b>"탕!"</b> 소리가 나면 <b>달리기</b> 버튼 연타! 그 전에 누르면 <b class="red">부정 출발</b> (2번이면 실격)</li>
+          <li>세게 연타할수록 <b>스태미너</b>가 줄고, 살살 달리면 다시 차요. 바닥나면 지쳐서 한동안 속도가 안 나요</li>
+          <li><b>90m 지점</b>(남은 10m)에서 스태미너가 꽉 차요 — 마지막 스퍼트!</li>
         </ol>
         <button type="button" class="btn btn-primary btn-block" id="introGo">준비 완료</button>
       </div>
 
-      <!-- 시기 결과 -->
+      <!-- 레이스 결과 -->
       <div class="panel hidden" id="result">
-        <div class="result-dist" id="resDist"></div>
+        <div class="result-dist" id="resTime"></div>
         <div class="result-badge hidden" id="resBadge">개인 최고!</div>
         <div class="result-detail" id="resDetail"></div>
         <table class="ranking mini" id="resTable"></table>
@@ -56,8 +60,7 @@
     </div>
 
     <div class="controls">
-      <button type="button" class="pad pad-run" id="runBtn"><span class="pad-icon">🏃</span><span>달리기</span><small>연타!</small></button>
-      <button type="button" class="pad pad-jump" id="jumpBtn"><span class="pad-icon">⤴</span><span>점프</span><small>누르고 있다가 떼기</small></button>
+      <button type="button" class="pad pad-run" id="runBtn"><span class="pad-icon">🏃</span><span>달리기</span><small>연타! 너무 세게 하면 지쳐요</small></button>
     </div>
   </div>
 
@@ -76,6 +79,6 @@
   <script src="../../shared/js/players.js"></script>
   <script src="../../shared/js/stadium.js"></script>
   <script src="../../shared/js/athlete.js"></script>
-  <script src="longjump.js"></script>
+  <script src="sprint.js"></script>
 </body>
 </html>

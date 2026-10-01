@@ -1,0 +1,46 @@
+/* 100m 달리기 전용 (공통은 shared/css/game.css) */
+.stamina {
+  position: absolute;
+  top: 92px;
+  left: 10px;
+  right: 10px;
+  background: rgba(13, 27, 42, 0.78);
+  border-radius: 14px;
+  padding: 6px 12px 10px;
+  pointer-events: none;
+}
+.stamina-head { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+.stamina-head span:last-child { color: var(--text); }
+.stamina-bar { position: relative; height: 16px; border-radius: 8px; background: #0b1420; overflow: hidden; }
+.stamina-fill { height: 100%; width: 100%; border-radius: 8px; background: var(--good); transition: background 0.2s; }
+/* 이 아래로 내려가면 속도가 줄기 시작 */
+.stamina-low { position: absolute; top: 0; bottom: 0; left: 25%; width: 2px; background: rgba(255, 255, 255, 0.35); }
+.stamina.mid .stamina-fill { background: #facc15; }
+.stamina.low .stamina-fill { background: var(--bad); }
+.stamina.empty { animation: blink 0.5s steps(2) infinite; }
+.stamina.empty .stamina-head span:last-child { color: var(--bad); }
+.stamina.spurt { box-shadow: 0 0 0 2px var(--gold), 0 0 18px rgba(255, 209, 102, 0.7); }
+.stamina.spurt .stamina-fill { background: linear-gradient(90deg, var(--gold), var(--accent-2)); }
+.stamina.spurt .stamina-head span:last-child { color: var(--gold); }
+@keyframes blink { 50% { background: rgba(127, 29, 29, 0.85); } }
+
+.to-line { top: 158px; }
+
+.pad-run small { text-align: center; padding: 0 8px; }
+.pad-run.tired { background: linear-gradient(180deg, #f87171, #b91c1c); }
+
+/* 가로 화면: 화면은 왼쪽, 큰 버튼은 오른쪽 */
+@media (orientation: landscape) and (max-height: 520px) {
+  .game {
+    display: grid;
+    grid-template-columns: 1fr 30vw;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .hud { grid-column: 1 / -1; padding: 4px 14px; }
+  .stage { grid-column: 1; grid-row: 2; }
+  .controls { grid-column: 2; grid-row: 2; height: auto; }
+  .meter-value { font-size: 26px; }
+  .stamina { top: 78px; }
+  .to-line { top: 136px; }
+  .banner { top: 62%; }
+}

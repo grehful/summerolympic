@@ -5,7 +5,7 @@
 window.SO = window.SO || {};
 window.SO.GAMES = [
   { id: 'long-jump', name: '멀리뛰기', icon: '🏃', desc: '연타로 달리고, 각도를 맞춰 점프!', ready: true },
-  { id: 'sprint-100m', name: '100m 달리기', icon: '⏱️', desc: '준비 중', ready: false },
+  { id: 'sprint-100m', name: '100m 달리기', icon: '⏱️', desc: '스태미너를 아끼다가 마지막 10m 스퍼트!', ready: true },
   { id: 'javelin', name: '창던지기', icon: '🎯', desc: '준비 중', ready: false },
   { id: 'high-jump', name: '높이뛰기', icon: '🤸', desc: '준비 중', ready: false },
   { id: 'weightlifting', name: '역도', icon: '🏋️', desc: '준비 중', ready: false },

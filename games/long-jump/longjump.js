@@ -384,6 +384,7 @@
   function showBanner(text, red) {
     ui.banner.textContent = text;
     ui.banner.classList.toggle('red', !!red);
+    ui.banner.classList.toggle('long', text.length > 5);
     ui.banner.classList.remove('hidden', 'pop');
     void ui.banner.offsetWidth;
     ui.banner.classList.add('pop');
@@ -428,19 +429,6 @@
   }
   window.addEventListener('resize', resize);
 
-  // 관중석 (한 번만 만들어 반복해서 그림)
-  var CROWD_LEN = 24;
-  var crowd = [];
-  (function () {
-    var colors = ['#ef4444', '#3b82f6', '#facc15', '#22c55e', '#f8fafc', '#a855f7', '#fb923c', '#0ea5e9', '#f472b6'];
-    for (var row = 0; row < 7; row++) {
-      for (var x = 0; x < CROWD_LEN; x += 0.55) {
-        if (Math.random() < 0.12) continue;
-        crowd.push({ x: x + Math.random() * 0.2, row: row, c: colors[(Math.random() * colors.length) | 0], b: Math.random() * 6.28 });
-      }
-    }
-  })();
-
   function sx(x) { return (x - s.cam) * PPM; }
   function sy(y) { return GROUND - y * PPM; }
 
@@ -449,45 +437,11 @@
     var shake = s.shake > 0 ? (Math.random() - 0.5) * 6 * s.shake * 4 : 0;
     ctx.translate(0, shake);
 
-    // 하늘
-    var sky = ctx.createLinearGradient(0, 0, 0, GROUND);
-    sky.addColorStop(0, '#5aa9e6');
-    sky.addColorStop(1, '#bfe3ff');
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, -10, W, GROUND + 10);
-
-    // 관중석 (원근감을 위해 천천히 움직임)
-    var standTop = GROUND - PPM * 3.4;
-    var standBottom = GROUND - PPM * 0.9;
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(0, standTop, W, standBottom - standTop);
-    var par = 0.5;
-    var rowH = (standBottom - standTop) / 7;
-    var offset = s.cam * par;
-    var startRep = Math.floor(offset / CROWD_LEN) - 1;
-    var cheer = s.phase === 'landed' || s.phase === 'result' ? 1 : 0.25;
-    for (var rep = startRep; rep <= startRep + Math.ceil(viewWidthM() / CROWD_LEN) + 2; rep++) {
-      for (var i = 0; i < crowd.length; i++) {
-        var c = crowd[i];
-        var px = (rep * CROWD_LEN + c.x - offset) * PPM;
-        if (px < -10 || px > W + 10) continue;
-        var bob = Math.sin(time / 120 + c.b) * cheer * rowH * 0.18;
-        var py = standTop + rowH * (c.row + 0.55) + bob;
-        ctx.fillStyle = c.c;
-        ctx.beginPath();
-        ctx.arc(px, py, rowH * 0.32, 0, 6.283);
-        ctx.fill();
-      }
-    }
-    // 광고판
-    ctx.fillStyle = '#1e3a8a';
-    ctx.fillRect(0, standBottom, W, GROUND - standBottom);
-    ctx.fillStyle = '#fbbf24';
-    ctx.font = '700 ' + Math.round((GROUND - standBottom) * 0.5) + 'px system-ui, sans-serif';
-    ctx.textBaseline = 'middle';
-    for (var ax = Math.floor(s.cam / 8) * 8; ax < s.cam + viewWidthM() + 8; ax += 8) {
-      ctx.fillText('SUMMER OLYMPIC', sx(ax), (standBottom + GROUND) / 2);
-    }
+    SO.stadium.draw(ctx, {
+      width: W, base: GROUND, ppm: PPM, cam: s.cam, time: time,
+      cheer: s.phase === 'landed' || s.phase === 'result' ? 1 : 0.25,
+    });
+    ctx.textAlign = 'center';
 
     // 땅 (트랙 / 모래판 / 잔디)
     var groundH = H - GROUND + 20;
@@ -615,7 +569,7 @@
     }
   }
 
-  // 막대 인형 선수. 각도는 '아래 방향 = 0', 앞쪽(+x)으로 돌수록 +
+  // 선수 자세 (그리기는 shared/js/athlete.js)
   function drawRunner(color) {
     var phase = s.phase;
     var pose;
@@ -634,69 +588,11 @@
         arms: [[1.3, 1.5], [1.1, 1.3]],
       };
     } else if (phase === 'run' || phase === 'foul') {
-      var p = s.stride / STRIDE * Math.PI * 2;
-      var amp = Math.min(1, s.v / 6);
-      var leg = function (ph) {
-        var th = Math.sin(ph) * 0.85 * amp;
-        var knee = (0.25 + 1.2 * Math.max(0, Math.cos(ph))) * amp;
-        return [th, th - knee];
-      };
-      var arm = function (ph) {
-        var up = -Math.sin(ph) * 0.9 * amp;
-        return [up, up + 1.4 * amp + 0.1];
-      };
-      pose = {
-        hip: 0.95 - Math.abs(Math.cos(p)) * 0.04 * amp, lean: 0.05 + 0.2 * amp + (s.charging ? -0.12 : 0),
-        legs: [leg(p), leg(p + Math.PI)],
-        arms: [arm(p + Math.PI), arm(p)],
-      };
+      pose = SO.athlete.runPose(s.stride, Math.min(1, s.v / 6), s.charging ? -0.12 : 0, STRIDE);
     } else {
-      pose = { hip: 0.95, lean: 0, legs: [[0.05, 0.05], [-0.05, -0.05]], arms: [[0.15, 0.3], [-0.1, 0.05]] };
+      pose = SO.athlete.standPose();
     }
-
-    var hx = s.x, hy = s.y + pose.hip;
-    var seg = function (x, y, a, len) { return [x + Math.sin(a) * len, y - Math.cos(a) * len]; };
-    var line = function (pts, w, col) {
-      ctx.strokeStyle = col;
-      ctx.lineWidth = w * PPM;
-      ctx.beginPath();
-      ctx.moveTo(sx(pts[0][0]), sy(pts[0][1]));
-      for (var i = 1; i < pts.length; i++) ctx.lineTo(sx(pts[i][0]), sy(pts[i][1]));
-      ctx.stroke();
-    };
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    var sh = [hx + Math.sin(pose.lean) * 0.5, hy + Math.cos(pose.lean) * 0.5];
-    var head = [hx + Math.sin(pose.lean) * 0.7, hy + Math.cos(pose.lean) * 0.7];
-
-    function limb(origin, angles, l1, l2, col, w) {
-      var j = seg(origin[0], origin[1], angles[0], l1);
-      var e = seg(j[0], j[1], angles[1], l2);
-      line([origin, j, e], w, col);
-    }
-    // 뒤쪽 팔다리 (어둡게)
-    limb([hx, hy], pose.legs[1], 0.46, 0.46, '#b07d5a', 0.11);
-    limb(sh, pose.arms[1], 0.3, 0.28, '#b07d5a', 0.08);
-    // 몸통 (유니폼)
-    line([[hx, hy], sh], 0.2, color);
-    // 반바지
-    ctx.fillStyle = '#1f2937';
-    ctx.beginPath();
-    ctx.arc(sx(hx), sy(hy), 0.12 * PPM, 0, 6.283);
-    ctx.fill();
-    // 앞쪽 팔다리
-    limb([hx, hy], pose.legs[0], 0.46, 0.46, '#e6b38c', 0.12);
-    limb(sh, pose.arms[0], 0.3, 0.28, '#e6b38c', 0.085);
-    // 머리
-    ctx.fillStyle = '#e6b38c';
-    ctx.beginPath();
-    ctx.arc(sx(head[0]), sy(head[1]), 0.13 * PPM, 0, 6.283);
-    ctx.fill();
-    ctx.fillStyle = '#1f2937';
-    ctx.beginPath();
-    ctx.arc(sx(head[0]) - 0.03 * PPM, sy(head[1]) - 0.03 * PPM, 0.13 * PPM, Math.PI * 0.9, Math.PI * 2.05);
-    ctx.fill();
+    SO.athlete.draw(ctx, pose, { x: s.x, y: s.y, toX: sx, toY: sy, ppm: PPM, color: color });
   }
 
   // ---- 메인 루프 ----
