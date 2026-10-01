@@ -1,4 +1,6 @@
-# apk/ 의 설치 파일이 바뀌면 GitHub 릴리스(latest)에 올린다 → 폰에서 Releases 페이지로 받기 쉬움
+# apk/ 의 설치 파일이 바뀌면 GitHub 릴리스로 올린다.
+# 버전마다 파일 이름이 달라서(summerolympic-0.2.0.apk) 폰에 예전 파일이 있어도 겹치지 않는다.
+#   최신 버전 페이지: https://github.com/grehful/summerolympic/releases/latest
 name: Release APK
 on:
   push:
@@ -15,7 +17,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          VER=$(grep -o 'versionName="[^"]*"' android/AndroidManifest.xml | cut -d'"' -f2)
+          mkdir dist
+          cp apk/summerolympic.apk "dist/summerolympic-$VER.apk"
+          cp apk/summerolympic.zip "dist/summerolympic-$VER.zip"
           gh release delete latest --yes --cleanup-tag || true
-          gh release create latest apk/summerolympic.apk apk/summerolympic.zip \
-            --target "$GITHUB_SHA" --title "썸머올림픽 최신 버전" \
-            --notes "summerolympic.apk 를 눌러 받아 설치하세요. APK가 안 받아지면 summerolympic.zip 을 받아 내 파일에서 압축을 풀고 설치하세요."
+          gh release delete "v$VER" --yes --cleanup-tag || true
+          gh release create "v$VER" dist/* --target "$GITHUB_SHA" --latest \
+            --title "썸머올림픽 $VER" \
+            --notes "summerolympic-$VER.apk 를 눌러 받아 설치하세요. APK가 안 받아지면 .zip 을 받아 내 파일에서 압축을 풀고 설치하세요."
