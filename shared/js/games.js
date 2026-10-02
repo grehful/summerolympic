@@ -9,5 +9,5 @@ window.SO.GAMES = [
   { id: 'javelin', name: '창던지기', icon: '🎯', desc: '준비 중', ready: false },
   { id: 'high-jump', name: '높이뛰기', icon: '🤸', desc: '준비 중', ready: false },
   { id: 'weightlifting', name: '역도', icon: '🏋️', desc: '준비 중', ready: false },
-  { id: 'archery', name: '양궁', icon: '🏹', desc: '준비 중', ready: false },
+  { id: 'archery', name: '양궁', icon: '🏹', desc: '바람을 읽고, 흔들림이 멎는 순간 발사!', ready: true },
 ];

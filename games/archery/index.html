@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>양궁</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../shared/css/common.css">
+  <link rel="stylesheet" href="../../shared/css/game.css">
+  <link rel="stylesheet" href="archery.css">
+</head>
+<body>
+  <!-- 1. 플레이어 설정 -->
+  <div id="setup" class="screen"></div>
+
+  <!-- 2. 경기 화면 -->
+  <div id="game" class="game no-select hidden">
+    <header class="hud">
+      <div class="hud-player"><span class="dot" id="hudDot"></span><span id="hudName"></span></div>
+      <div class="hud-info"><span id="hudEnd"></span><span id="hudTotal"></span></div>
+    </header>
+
+    <div class="stage" id="stage">
+      <canvas id="canvas"></canvas>
+
+      <div class="meters">
+        <div class="meter"><div class="meter-label">바람</div><div class="meter-value"><span class="wind-arrow" id="windArrow">→</span><span id="wind">0.0</span><small>m/s</small></div></div>
+        <div class="meter" id="clockBox"><div class="meter-label">남은 시간</div><div class="meter-value"><span id="clock">20</span><small>초</small></div></div>
+      </div>
+      <div class="end-strip" id="endStrip"></div>
+
+      <div class="breath hidden" id="breath">
+        <div class="breath-zones"><i class="z-draw"></i><i class="z-steady"></i><i class="z-tired"></i></div>
+        <div class="breath-cursor" id="breathCursor"></div>
+        <div class="breath-label" id="breathLabel"></div>
+      </div>
+
+      <div class="banner hidden" id="banner"></div>
+
+      <!-- 차례 안내 -->
+      <div class="panel hidden" id="intro">
+        <div class="intro-turn" id="introTurn"></div>
+        <div class="intro-name" id="introName"></div>
+        <ol class="howto">
+          <li>아래 버튼을 <b>꾹 누르면</b> 활을 당겨요. 누른 채로 <b>끌면 조준</b>, <b>손을 떼면 발사</b>!</li>
+          <li>당기고 <b>1~4초</b>(초록 구간)가 가장 덜 흔들려요. 오래 버티면 팔이 지쳐서 다시 흔들려요</li>
+          <li>화살은 <b>바람</b>에 밀려요. 1 m/s마다 점수 한 칸 반쯤 — 바람 반대쪽을 겨냥하세요</li>
+          <li>한 발에 <b>20초</b> 안에 쏘세요. 3발이 한 엔드예요</li>
+        </ol>
+        <button type="button" class="btn btn-primary btn-block" id="introGo">준비 완료</button>
+      </div>
+
+      <!-- 엔드 결과 -->
+      <div class="panel hidden" id="result">
+        <div class="intro-turn" id="resTitle"></div>
+        <div class="result-arrows" id="resArrows"></div>
+        <div class="result-detail" id="resDetail"></div>
+        <table class="ranking mini" id="resTable"></table>
+        <button type="button" class="btn btn-primary btn-block" id="resNext"></button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button type="button" class="pad pad-aim" id="aimPad"><span class="pad-icon">🏹</span><span id="padText">꾹 눌러서 당기기</span><small>누른 채로 끌어서 조준 · 떼면 발사</small></button>
+    </div>
+  </div>
+
+  <!-- 3. 최종 결과 -->
+  <div id="final" class="screen hidden">
+    <div class="setup">
+      <h1 class="setup-title">🏆 최종 결과</h1>
+      <div class="card"><table class="ranking" id="finalTable"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="againBtn">같은 선수로 다시 하기</button>
+      <button type="button" class="btn btn-block" id="setupBtn">선수 다시 정하기</button>
+      <a class="btn btn-ghost btn-block" href="../../">종목 선택으로</a>
+    </div>
+  </div>
+
+  <script src="../../shared/js/device.js"></script>
+  <script src="../../shared/js/players.js"></script>
+  <script src="archery.js"></script>
+</body>
+</html>

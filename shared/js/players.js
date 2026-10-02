@@ -6,6 +6,7 @@
  *     storageKey: 'longjump',         // 이름/설정 기억용
  *     maxPlayers: 8,
  *     attemptChoices: [1, 3, 6],      // 생략하면 시도 횟수 선택 안 보임
+ *     attemptLabel: '1인당 시도 횟수', attemptUnit: '번',  // 선택 사항
  *     defaultAttempts: 3,
  *   }, function onStart(config) { ... });
  *
@@ -43,7 +44,7 @@
       '    </div>' +
       '  </div>' +
       (opts.attemptChoices
-        ? '  <div class="card"><h3>1인당 시도 횟수</h3><div class="seg" data-ref="attempts"></div></div>'
+        ? '  <div class="card"><h3>' + (opts.attemptLabel || '1인당 시도 횟수') + '</h3><div class="seg" data-ref="attempts"></div></div>'
         : '') +
       '  <div class="card"><h3>선수 이름</h3><div class="name-list" data-ref="names"></div></div>' +
       '  <button type="button" class="btn btn-primary btn-block" data-act="start">경기 시작!</button>' +
@@ -76,7 +77,7 @@
       namesEl.innerHTML = html;
       if (attemptsEl) {
         attemptsEl.innerHTML = opts.attemptChoices.map(function (n) {
-          return '<button type="button" data-attempts="' + n + '" aria-pressed="' + (n === attempts) + '">' + n + '번</button>';
+          return '<button type="button" data-attempts="' + n + '" aria-pressed="' + (n === attempts) + '">' + n + (opts.attemptUnit || '번') + '</button>';
         }).join('');
       }
     }
