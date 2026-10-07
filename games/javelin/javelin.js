@@ -500,22 +500,29 @@
     ctx.fillStyle = '#ef4444';
     ctx.fillRect(sx(LINE_X) - 1.5, G0 - 1, 3, 12);
 
-    // 거리 눈금 (라인 기준 10m마다)
-    ctx.font = '700 ' + Math.round(Math.max(12, PPM * 0.38)) + 'px system-ui, sans-serif';
+    // 거리 표시: 잔디 위에 5m마다 선과 큰 숫자 (10m마다 굵게), 라인 기준
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    for (var m = 10; m <= 110; m += 10) {
+    // 줄자(라인 아래 40px)와 안 겹치게 아래쪽에, 단 화면 밖으로는 안 나가게
+    var paintY = G0 + Math.min(Math.max(80, groundH * 0.7), groundH - 34);
+    for (var m = 5; m <= 110; m += 5) {
       var mx = sx(LINE_X + m);
-      if (mx < -40 || mx > W + 40) continue;
-      ctx.fillStyle = 'rgba(255,255,255,0.75)';
-      ctx.fillRect(mx - 1, G0, 2, groundH);
-      ctx.fillText(m + 'm', mx + PPM * 0.6, G0 + 18);
+      if (mx < -60 || mx > W + 60) continue;
+      var major = m % 10 === 0;
+      ctx.fillStyle = major ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.45)';
+      ctx.fillRect(mx - (major ? 1.5 : 1), G0, major ? 3 : 2, groundH);
+      ctx.font = '900 ' + Math.round(Math.max(16, PPM * (major ? 0.7 : 0.5))) + 'px system-ui, sans-serif';
+      ctx.fillStyle = major ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.5)';
+      ctx.fillText(m + 'm', mx + PPM * (major ? 0.9 : 0.7), paintY);
     }
+    // 도움닫기 트랙: 라인까지 남은 거리 5m마다
+    ctx.font = '700 ' + Math.round(Math.max(12, PPM * 0.36)) + 'px system-ui, sans-serif';
     for (var r = 5; r < LINE_X; r += 5) {
       var rx = sx(LINE_X - r);
       if (rx < -30 || rx > W + 30) continue;
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.fillRect(rx - 1, G0 + 4, 2, 8);
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.fillRect(rx - 1, G0 + 4, 2, 10);
+      ctx.fillText(r + 'm', rx, paintY);
     }
     var wr = sx(LINE_X + WORLD_RECORD);
     if (wr > -40 && wr < W + 40) {
