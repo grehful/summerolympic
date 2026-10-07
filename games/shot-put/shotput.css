@@ -1,0 +1,74 @@
+/* 투포환 전용 (공통은 shared/css/game.css) */
+.power {
+  position: absolute;
+  top: 92px;
+  left: 10px;
+  right: 10px;
+  background: rgba(13, 27, 42, 0.78);
+  border-radius: 14px;
+  padding: 6px 12px 10px;
+  pointer-events: none;
+}
+.power-head { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+.power-head span:last-child { color: var(--text); font-variant-numeric: tabular-nums; }
+.power-head.danger span:last-child { color: var(--bad); }
+.power-bar { height: 16px; border-radius: 8px; background: #0b1420; overflow: hidden; }
+.power-fill { height: 100%; width: 0; border-radius: 8px; background: linear-gradient(90deg, #38bdf8, var(--accent), var(--accent-2)); }
+
+/* 원을 그리는 패드 */
+.pad-spin {
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #1e3a5f, #12263f);
+  touch-action: none;
+  overflow: hidden;
+  cursor: grab;
+}
+.spin-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(62%, 190px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px dashed rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+}
+.spin-dot {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 16px rgba(255, 183, 3, 0.8);
+  left: 50%;
+  top: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.pad-spin.active .spin-ring { border-color: rgba(255, 183, 3, 0.6); }
+.pad-spin.active .spin-dot { opacity: 1; }
+.spin-text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.spin-text small { font-size: 13px; font-weight: 600; opacity: 0.85; }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .game {
+    display: grid;
+    grid-template-columns: 1fr 34vw;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .hud { grid-column: 1 / -1; padding: 4px 14px; }
+  .stage { grid-column: 1; grid-row: 2; }
+  .controls { grid-column: 2; grid-row: 2; height: auto; }
+  .meter-value { font-size: 26px; }
+  .power { top: 78px; }
+}
