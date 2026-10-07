@@ -153,7 +153,8 @@
     var c = padCenter();
     s.lastAngle = Math.atan2(e.clientY - c.y, e.clientX - c.x);
     s.lastMove = e.timeStamp;
-    s.points = [{ x: e.clientX, y: e.clientY, t: e.timeStamp }];
+    s.points = [];
+    SO.flick.add(s.points, e.clientX, e.clientY, e.timeStamp);
     SO.vibrate(10);
   });
 
@@ -162,8 +163,7 @@
     var c = padCenter();
     var dx = e.clientX - c.x, dy = e.clientY - c.y;
     var tNow = e.timeStamp;
-    s.points.push({ x: e.clientX, y: e.clientY, t: tNow });
-    if (s.points.length > 60) s.points.shift();
+    SO.flick.add(s.points, e.clientX, e.clientY, tNow);
     if (Math.hypot(dx, dy) < 20) return; // 가운데 근처는 각도가 튀어서 무시
     var a = Math.atan2(dy, dx);
     var d = a - s.lastAngle;
@@ -201,17 +201,9 @@
   document.addEventListener('contextmenu', function (e) { if (!ui.game.classList.contains('hidden')) e.preventDefault(); });
 
   function release(tUp) {
-    var pts = s.points;
-    var last = pts[pts.length - 1];
-    var first = last;
-    for (var i = pts.length - 1; i >= 0; i--) {
-      first = pts[i];
-      if (last.t - pts[i].t >= FLICK_WINDOW) break;
-    }
-    var dt = Math.max(0.016, (last.t - first.t) / 1000);
-    var fx = last.x - first.x, fy = last.y - first.y;
-    var flickSpeed = Math.hypot(fx, fy) / dt;
-    var angle = Math.atan2(-fy, fx) * 180 / Math.PI;
+    var f = SO.flick.measure(s.points, FLICK_WINDOW);
+    var flickSpeed = f.speed;
+    var angle = f.angle;
 
     // 튕기기 직전의 회전 속도로 파워 계산 (튕기는 동작 자체는 원이 아니라서)
     var omega = s.omega;
