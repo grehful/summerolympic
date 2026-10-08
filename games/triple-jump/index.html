@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>3단 뛰기</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../shared/css/common.css">
+  <link rel="stylesheet" href="../../shared/css/game.css">
+  <link rel="stylesheet" href="triplejump.css">
+</head>
+<body>
+  <!-- 1. 플레이어 설정 -->
+  <div id="setup" class="screen"></div>
+
+  <!-- 2. 경기 화면 -->
+  <div id="game" class="game no-select hidden">
+    <header class="hud">
+      <div class="hud-player"><span class="dot" id="hudDot"></span><span id="hudName"></span></div>
+      <div class="hud-info"><span id="hudAttempt"></span><span id="hudBest"></span></div>
+    </header>
+
+    <div class="stage" id="stage">
+      <canvas id="canvas"></canvas>
+
+      <div class="meters">
+        <div class="meter"><div class="meter-label">시속</div><div class="meter-value"><span id="speed">0.0</span><small>km/h</small></div></div>
+        <div class="meter"><div class="meter-label">각도</div><div class="meter-value"><span id="angle">0.0</span><small>°</small></div></div>
+      </div>
+      <div class="to-line" id="toLine"></div>
+      <div class="phases" id="phases"><span>① 홉</span><span>② 스텝</span><span>③ 점프</span></div>
+      <div class="timing hidden" id="timing"></div>
+
+      <div class="banner hidden" id="banner"></div>
+
+      <!-- 차례 안내 -->
+      <div class="panel hidden" id="intro">
+        <div class="intro-turn" id="introTurn"></div>
+        <div class="intro-name" id="introName"></div>
+        <ol class="howto">
+          <li><b>달리기</b> 연타 → 발판 앞에서 <b>점프</b>를 꾹 눌렀다 떼면 첫 번째 <b>홉</b>!</li>
+          <li>공중에서 발 닿을 곳에 <b>원</b>이 줄어들어요. <b>땅에 닿는 순간 점프를 눌러요</b> — 정확할수록 속도가 안 줄어요</li>
+          <li>누르고 있는 동안 각도가 올라가고(대신 속도 손실), 떼면 다음 도약. <b>홉 → 스텝 → 점프</b> 3번!</li>
+          <li>리듬을 놓치거나, 발판의 <b class="red">빨간 선</b>을 넘거나, 모래판에 못 미치면 파울</li>
+        </ol>
+        <button type="button" class="btn btn-primary btn-block" id="introGo">준비 완료</button>
+      </div>
+
+      <!-- 시기 결과 -->
+      <div class="panel hidden" id="result">
+        <div class="result-dist" id="resDist"></div>
+        <div class="result-badge hidden" id="resBadge">개인 최고!</div>
+        <div class="result-detail" id="resDetail"></div>
+        <table class="ranking mini" id="resTable"></table>
+        <button type="button" class="btn btn-primary btn-block" id="resNext"></button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button type="button" class="pad pad-run" id="runBtn"><span class="pad-icon">🏃</span><span>달리기</span><small>연타!</small></button>
+      <button type="button" class="pad pad-jump" id="jumpBtn"><span class="pad-icon">⤴</span><span>점프</span><small>착지 순간 누르고 · 떼면 도약</small></button>
+    </div>
+  </div>
+
+  <!-- 3. 최종 결과 -->
+  <div id="final" class="screen hidden">
+    <div class="setup">
+      <h1 class="setup-title">🏆 최종 결과</h1>
+      <div class="card"><table class="ranking" id="finalTable"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="againBtn">같은 선수로 다시 하기</button>
+      <button type="button" class="btn btn-block" id="setupBtn">선수 다시 정하기</button>
+      <a class="btn btn-ghost btn-block" href="../../">종목 선택으로</a>
+    </div>
+  </div>
+
+  <script src="../../shared/js/device.js"></script>
+  <script src="../../shared/js/players.js"></script>
+  <script src="../../shared/js/stadium.js"></script>
+  <script src="../../shared/js/athlete.js"></script>
+  <script src="triplejump.js"></script>
+</body>
+</html>

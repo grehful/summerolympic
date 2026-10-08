@@ -5,6 +5,7 @@
 window.SO = window.SO || {};
 window.SO.GAMES = [
   { id: 'long-jump', name: '멀리뛰기', icon: '🏃', desc: '연타로 달리고, 각도를 맞춰 점프!', ready: true },
+  { id: 'triple-jump', name: '3단 뛰기', icon: '🦘', desc: '홉·스텝·점프, 착지 리듬을 맞춰라!', ready: true },
   { id: 'sprint-100m', name: '100m 달리기', icon: '⏱️', desc: '스태미너를 아끼다가 마지막 10m 스퍼트!', ready: true },
   { id: 'shot-put', name: '투포환', icon: '💪', desc: '빙글빙글 돌리다가 휙! 던지기', ready: true },
   { id: 'javelin', name: '창던지기', icon: '🎯', desc: '번갈아 달리다가 화면을 휙! 선은 밟지 말기', ready: true },
