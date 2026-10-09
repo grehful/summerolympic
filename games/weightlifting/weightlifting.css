@@ -1,0 +1,62 @@
+/* 역도 전용 (공통은 shared/css/game.css) */
+.meter-value.step { font-size: 26px; padding-top: 6px; }
+
+.lift-gauge, .balance {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 96px;
+  pointer-events: none;
+}
+.lift-gauge {
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(13, 27, 42, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+}
+.lift-zone { position: absolute; top: 0; bottom: 0; background: linear-gradient(90deg, rgba(74,222,128,0.5), rgba(74,222,128,0.95), rgba(74,222,128,0.5)); }
+.lift-needle { position: absolute; top: 2px; bottom: 2px; width: 6px; margin-left: -3px; border-radius: 3px; background: #fff; box-shadow: 0 0 10px rgba(255, 255, 255, 0.9); }
+
+.balance-track {
+  position: relative;
+  height: 30px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(248,113,113,0.8), rgba(13,27,42,0.85) 25%, rgba(13,27,42,0.85) 75%, rgba(248,113,113,0.8));
+  overflow: hidden;
+}
+.balance-safe { position: absolute; left: 40%; width: 20%; top: 0; bottom: 0; background: rgba(74, 222, 128, 0.35); }
+.balance-needle { position: absolute; left: 50%; top: 2px; bottom: 2px; width: 6px; margin-left: -3px; border-radius: 3px; background: #fde047; }
+.balance-time { margin-top: 6px; height: 8px; border-radius: 4px; background: rgba(13, 27, 42, 0.85); overflow: hidden; }
+.balance-fill { height: 100%; width: 0; background: var(--good); }
+
+.weight-pick { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 2px; }
+.weight-pick button {
+  width: 46px; height: 46px; border-radius: 12px;
+  background: var(--panel-2); font-weight: 800; font-size: 17px;
+}
+.weight-pick button:disabled { opacity: 0.35; }
+.weight-value { min-width: 110px; text-align: center; font-size: 40px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.weight-value small { font-size: 16px; color: var(--muted); margin-left: 3px; }
+.weight-hint { text-align: center; font-size: 13px; margin-bottom: 10px; }
+
+.pad-lift { background: linear-gradient(180deg, #a78bfa, #7c3aed); }
+.pad-lift.side { background: linear-gradient(180deg, #38bdf8, #0284c7); }
+.pad-lift.push { filter: brightness(1.3); transform: scale(0.96); }
+.pad-lift.off { background: linear-gradient(180deg, #64748b, #475569); color: #cbd5e1; }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .game {
+    display: grid;
+    grid-template-columns: 22vw 1fr 22vw;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .hud { grid-column: 1 / -1; padding: 4px 14px; }
+  .controls { display: contents; }
+  .pad { margin: 8px; }
+  #leftBtn { grid-column: 1; grid-row: 2; }
+  .stage { grid-column: 2; grid-row: 2; }
+  #rightBtn { grid-column: 3; grid-row: 2; }
+  .meter-value { font-size: 26px; }
+  .lift-gauge, .balance { top: 80px; }
+}

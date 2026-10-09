@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>역도</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../shared/css/common.css">
+  <link rel="stylesheet" href="../../shared/css/game.css">
+  <link rel="stylesheet" href="weightlifting.css">
+</head>
+<body>
+  <!-- 1. 플레이어 설정 -->
+  <div id="setup" class="screen"></div>
+
+  <!-- 2. 경기 화면 -->
+  <div id="game" class="game no-select hidden">
+    <header class="hud">
+      <div class="hud-player"><span class="dot" id="hudDot"></span><span id="hudName"></span></div>
+      <div class="hud-info"><span id="hudAttempt"></span><span id="hudBest"></span></div>
+    </header>
+
+    <div class="stage" id="stage">
+      <canvas id="canvas"></canvas>
+
+      <div class="meters">
+        <div class="meter"><div class="meter-label">무게</div><div class="meter-value"><span id="kg">0</span><small>kg</small></div></div>
+        <div class="meter"><div class="meter-label" id="stepLabel">단계</div><div class="meter-value step" id="step">대기</div></div>
+      </div>
+      <!-- 클린/저크: 바늘이 초록 구간에 있을 때 탭 -->
+      <div class="lift-gauge hidden" id="gauge"><div class="lift-zone" id="zone"></div><div class="lift-needle" id="needle"></div></div>
+      <!-- 버티기: 기울기 + 남은 시간 -->
+      <div class="balance hidden" id="balance">
+        <div class="balance-track"><div class="balance-safe"></div><div class="balance-needle" id="tilt"></div></div>
+        <div class="balance-time"><div class="balance-fill" id="holdFill"></div></div>
+      </div>
+
+      <div class="banner hidden" id="banner"></div>
+
+      <!-- 차례 안내 + 무게 정하기 -->
+      <div class="panel hidden" id="intro">
+        <div class="intro-turn" id="introTurn"></div>
+        <div class="intro-name" id="introName"></div>
+        <div class="weight-pick">
+          <button type="button" data-d="-5">−5</button>
+          <button type="button" data-d="-1">−1</button>
+          <div class="weight-value"><span id="pickKg">120</span><small>kg</small></div>
+          <button type="button" data-d="1">+1</button>
+          <button type="button" data-d="5">+5</button>
+        </div>
+        <div class="weight-hint muted" id="pickHint"></div>
+        <ol class="howto">
+          <li><b>클린</b>: 바늘이 <b>초록 구간</b>에 올 때 탭 → 어깨까지</li>
+          <li><b>저크</b>: 더 빨라진 바늘을 한 번 더 맞추면 머리 위로</li>
+          <li><b>버티기</b>: 바벨이 기울면 <b>내려간 쪽 버튼</b>을 눌러 3초 버티기</li>
+          <li>무거울수록 바늘이 빠르고 구간이 좁아요. 무게는 내릴 수 없어요</li>
+        </ol>
+        <button type="button" class="btn btn-primary btn-block" id="introGo">이 무게로 도전</button>
+      </div>
+
+      <!-- 시기 결과 -->
+      <div class="panel hidden" id="result">
+        <div class="result-dist" id="resKg"></div>
+        <div class="result-badge hidden" id="resBadge">개인 최고!</div>
+        <div class="result-detail" id="resDetail"></div>
+        <table class="ranking mini" id="resTable"></table>
+        <button type="button" class="btn btn-primary btn-block" id="resNext"></button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button type="button" class="pad pad-lift" id="leftBtn"><span class="pad-icon" id="leftIcon">🏋️</span><span id="leftText">들기!</span></button>
+      <button type="button" class="pad pad-lift" id="rightBtn"><span class="pad-icon" id="rightIcon">🏋️</span><span id="rightText">들기!</span></button>
+    </div>
+  </div>
+
+  <!-- 3. 최종 결과 -->
+  <div id="final" class="screen hidden">
+    <div class="setup">
+      <h1 class="setup-title">🏆 최종 결과</h1>
+      <div class="card"><table class="ranking" id="finalTable"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="againBtn">같은 선수로 다시 하기</button>
+      <button type="button" class="btn btn-block" id="setupBtn">선수 다시 정하기</button>
+      <a class="btn btn-ghost btn-block" href="../../">종목 선택으로</a>
+    </div>
+  </div>
+
+  <script src="../../shared/js/device.js"></script>
+  <script src="../../shared/js/players.js"></script>
+  <script src="weightlifting.js"></script>
+</body>
+</html>
