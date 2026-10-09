@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>높이뛰기</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../shared/css/common.css">
+  <link rel="stylesheet" href="../../shared/css/game.css">
+  <link rel="stylesheet" href="highjump.css">
+</head>
+<body>
+  <!-- 1. 플레이어 설정 -->
+  <div id="setup" class="screen"></div>
+
+  <!-- 2. 경기 화면 -->
+  <div id="game" class="game no-select hidden">
+    <header class="hud">
+      <div class="hud-player"><span class="dot" id="hudDot"></span><span id="hudName"></span></div>
+      <div class="hud-info"><span id="hudAttempt"></span><span id="hudBest"></span></div>
+    </header>
+
+    <div class="stage" id="stage">
+      <canvas id="canvas"></canvas>
+
+      <div class="meters">
+        <div class="meter"><div class="meter-label">시속</div><div class="meter-value"><span id="speed">0.0</span><small>km/h</small></div></div>
+        <div class="meter"><div class="meter-label">바 높이</div><div class="meter-value"><span id="barH">0.00</span><small>m</small></div></div>
+      </div>
+      <div class="to-line" id="toLine"></div>
+      <div class="gauge" id="gauge"><div class="gauge-zone"></div><div class="gauge-needle" id="needle"></div><span class="gauge-label">적정 속도</span></div>
+      <div class="history" id="history"></div>
+      <div class="timing hidden" id="timing"></div>
+
+      <div class="banner hidden" id="banner"></div>
+
+      <!-- 차례 안내 -->
+      <div class="panel hidden" id="intro">
+        <div class="intro-turn" id="introTurn"></div>
+        <div class="intro-name" id="introName"></div>
+        <ol class="howto">
+          <li><b>달리기</b>를 눌러 속도를 내되, 게이지의 <b>초록 구간</b>(적정 속도)을 지키세요. 너무 빨라도 높이가 안 나요</li>
+          <li>바닥의 <b>도약 표시</b> 위에서 <b>점프</b>를 눌러 뛰어요</li>
+          <li>공중에서 엉덩이가 바에 다가가면 점프를 <b>꾹 눌러 허리 젖히기</b>, 다리가 지나갈 때 <b>떼서 다리 차올리기</b>!</li>
+          <li>높이마다 <b>3번</b> 기회. 3번 다 실패하면 탈락, 마지막까지 남으면 우승</li>
+        </ol>
+        <button type="button" class="btn btn-primary btn-block" id="introGo">준비 완료</button>
+      </div>
+
+      <!-- 시기 결과 -->
+      <div class="panel hidden" id="result">
+        <div class="result-dist" id="resDist"></div>
+        <div class="result-badge hidden" id="resBadge">개인 최고!</div>
+        <div class="history-row" id="resHistory"></div>
+        <div class="result-detail" id="resDetail"></div>
+        <table class="ranking mini" id="resTable"></table>
+        <button type="button" class="btn btn-primary btn-block" id="resNext"></button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button type="button" class="pad pad-run" id="runBtn"><span class="pad-icon">🏃</span><span>달리기</span><small>적정 속도 유지</small></button>
+      <button type="button" class="pad pad-jump" id="jumpBtn"><span class="pad-icon">⤴</span><span>점프</span><small>꾹 젖히고 → 떼기</small></button>
+    </div>
+  </div>
+
+  <!-- 3. 최종 결과 -->
+  <div id="final" class="screen hidden">
+    <div class="setup">
+      <h1 class="setup-title">🏆 최종 결과</h1>
+      <div class="card"><table class="ranking" id="finalTable"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="againBtn">같은 선수로 다시 하기</button>
+      <button type="button" class="btn btn-block" id="setupBtn">선수 다시 정하기</button>
+      <a class="btn btn-ghost btn-block" href="../../">종목 선택으로</a>
+    </div>
+  </div>
+
+  <script src="../../shared/js/device.js"></script>
+  <script src="../../shared/js/players.js"></script>
+  <script src="../../shared/js/stadium.js"></script>
+  <script src="../../shared/js/athlete.js"></script>
+  <script src="highjump.js"></script>
+</body>
+</html>
