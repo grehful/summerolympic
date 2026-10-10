@@ -11,5 +11,6 @@ window.SO.GAMES = [
   { id: 'javelin', name: '창던지기', icon: '🎯', desc: '번갈아 달리다가 화면을 휙! 선은 밟지 말기', ready: true },
   { id: 'high-jump', name: '높이뛰기', icon: '🤸', desc: '적정 속도로 달려 꾹-떼! 바를 넘어라', ready: true },
   { id: 'weightlifting', name: '역도', icon: '🏋️', desc: '바늘을 맞춰 들어 올리고 3초 버티기', ready: true },
+  { id: 'trampoline', name: '트램폴린', icon: '🤸‍♀️', desc: '닿는 순간 탭으로 높이, 원을 그려 공중제비!', ready: true },
   { id: 'archery', name: '양궁', icon: '🏹', desc: '바람을 읽고, 흔들림이 멎는 순간 발사!', ready: true },
 ];
