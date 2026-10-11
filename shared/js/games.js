@@ -12,5 +12,6 @@ window.SO.GAMES = [
   { id: 'high-jump', name: '높이뛰기', icon: '🤸', desc: '적정 속도로 달려 꾹-떼! 바를 넘어라', ready: true },
   { id: 'weightlifting', name: '역도', icon: '🏋️', desc: '바늘을 맞춰 들어 올리고 3초 버티기', ready: true },
   { id: 'trampoline', name: '트램폴린', icon: '🤸‍♀️', desc: '닿는 순간 탭으로 높이, 원을 그려 공중제비!', ready: true },
+  { id: 'rhythmic', name: '리듬체조', icon: '🎀', desc: '음악에 맞춰 공을 따라 리본으로 그리기!', ready: true },
   { id: 'archery', name: '양궁', icon: '🏹', desc: '바람을 읽고, 흔들림이 멎는 순간 발사!', ready: true },
 ];

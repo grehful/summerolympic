@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>리듬체조</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../shared/css/common.css">
+  <link rel="stylesheet" href="../../shared/css/game.css">
+  <link rel="stylesheet" href="rhythmic.css">
+</head>
+<body>
+  <!-- 1. 플레이어 설정 -->
+  <div id="setup" class="screen"></div>
+
+  <!-- 2. 경기 화면 -->
+  <div id="game" class="game no-select hidden">
+    <header class="hud">
+      <div class="hud-player"><span class="dot" id="hudDot"></span><span id="hudName"></span></div>
+      <div class="hud-info"><span id="hudAttempt"></span><span id="hudBest"></span></div>
+    </header>
+
+    <!-- 경기 화면 전체가 리본 패드: 손가락으로 공을 따라 그리기 -->
+    <div class="stage" id="stage">
+      <canvas id="canvas"></canvas>
+
+      <div class="meters">
+        <div class="meter"><div class="meter-label" id="elemLabel">요소</div><div class="meter-value"><span id="elem">준비</span></div></div>
+        <div class="meter"><div class="meter-label">콤보</div><div class="meter-value"><span id="combo">0</span></div></div>
+      </div>
+      <div class="elem-chip" id="elemChip"></div>
+      <div class="timing hidden" id="timing"></div>
+      <div class="banner hidden" id="banner"></div>
+
+      <!-- 차례 안내 -->
+      <div class="panel hidden" id="intro">
+        <div class="intro-turn" id="introTurn"></div>
+        <div class="intro-name" id="introName"></div>
+        <ol class="howto">
+          <li>음악이 시작되면 화면에 <b>모양</b>과 <b>금색 공</b>이 나와요</li>
+          <li>공이 박자에 맞춰 모양을 따라 움직여요. <b>손가락을 떼지 말고</b> 공을 따라 그리세요</li>
+          <li>공에 가까울수록 퍼펙트! 손가락을 떼면 <b>리본을 떨어뜨려</b> 감점이에요</li>
+          <li>요소 8개, 갈수록 빨라져요. 점수 = 난도 + 실시 + 예술(퍼펙트 박자)</li>
+        </ol>
+        <button type="button" class="btn btn-primary btn-block" id="introGo">준비 완료</button>
+      </div>
+
+      <!-- 루틴 결과 -->
+      <div class="panel hidden" id="result">
+        <div class="result-dist" id="resScore"></div>
+        <div class="result-badge hidden" id="resBadge">개인 최고!</div>
+        <div class="result-detail" id="resDetail"></div>
+        <table class="ranking mini" id="resTable"></table>
+        <button type="button" class="btn btn-primary btn-block" id="resNext"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 최종 결과 -->
+  <div id="final" class="screen hidden">
+    <div class="setup">
+      <h1 class="setup-title">🏆 최종 결과</h1>
+      <div class="card"><table class="ranking" id="finalTable"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="againBtn">같은 선수로 다시 하기</button>
+      <button type="button" class="btn btn-block" id="setupBtn">선수 다시 정하기</button>
+      <a class="btn btn-ghost btn-block" href="../../">종목 선택으로</a>
+    </div>
+  </div>
+
+  <script src="../../shared/js/device.js"></script>
+  <script src="../../shared/js/players.js"></script>
+  <script src="../../shared/js/countries.js"></script>
+  <script src="../../shared/js/olympic.js"></script>
+  <script src="../../shared/js/athlete.js"></script>
+  <script src="rhythmic.js"></script>
+</body>
+</html>

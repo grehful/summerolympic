@@ -23,8 +23,9 @@
     'weightlifting': { name: '역도', icon: '🏋️', attempts: 3, perk: '바늘이 느리고 구간이 넓고 덜 흔들려요' },
     'archery': { name: '양궁', icon: '🏹', attempts: 2, perk: '조준점이 덜 흔들려요' },
     'trampoline': { name: '트램폴린', icon: '🤸‍♀️', attempts: 1, perk: '타이밍·착지 판정이 넉넉해요' },
+    'rhythmic': { name: '리듬체조', icon: '🎀', attempts: 1, perk: '공 따라 그리기 판정이 넉넉해요' },
   };
-  var ORDER = ['sprint-100m', 'long-jump', 'shot-put', 'archery', 'high-jump', 'javelin', 'weightlifting', 'triple-jump', 'trampoline'];
+  var ORDER = ['sprint-100m', 'long-jump', 'shot-put', 'archery', 'high-jump', 'javelin', 'weightlifting', 'triple-jump', 'rhythmic', 'trampoline'];
 
   function load() {
     try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
