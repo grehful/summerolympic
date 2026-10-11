@@ -200,11 +200,7 @@
     }).join('');
   }
 
-  $('quitBtn').addEventListener('click', function () {
-    if (!confirm('진행 중인 올림픽을 그만둘까요? 메달 기록이 사라져요.')) return;
-    O.clear();
-    startSetup();
-  });
+  $('quitBtn').addEventListener('click', function () { O.quit('../'); });
 
   // ---- 4. 시상식 ----
   function renderCeremony(eventId) {

@@ -65,8 +65,29 @@
       });
     },
 
+    // 확인 창 없이 바로 올림픽을 끝내고 메인 화면으로 (앱 WebView 에서는 confirm() 이 안 뜬다)
+    quit: function (homeHref) {
+      this.clear();
+      location.href = homeHref || '../../';
+    },
+    quitButton: function () {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-ghost btn-block olympic-quit';
+      btn.textContent = '🏁 올림픽 끝내기';
+      btn.addEventListener('click', function () { SO.olympic.quit('../../'); });
+      return btn;
+    },
+
     // 설정 화면 없이 바로 경기 시작 (선수·나라는 올림픽 진행 정보에서)
     start: function (eventId, startMatch) {
+      // 경기 중에도 매 차례 안내 화면에서 끝낼 수 있게
+      var go = document.getElementById('introGo');
+      if (go && !go.parentNode.querySelector('.olympic-quit')) {
+        var q = this.quitButton();
+        q.style.marginTop = '8px';
+        go.parentNode.insertBefore(q, go.nextSibling);
+      }
       startMatch(this.players(), EVENTS[eventId].attempts);
     },
 
@@ -84,14 +105,14 @@
       var setup = ui.final.querySelector('.setup');
       var back = setup.querySelector('a.btn');
       if (back) back.classList.add('hidden');
-      var old = setup.querySelector('.olympic-next');
-      if (old) old.remove();
+      setup.querySelectorAll('.olympic-next, .olympic-quit').forEach(function (b) { b.remove(); });
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'btn btn-primary btn-block olympic-next';
       btn.textContent = '🏅 시상식 & 다음 종목';
       btn.addEventListener('click', function () { SO.olympic.finishEvent(eventId, list); });
       setup.appendChild(btn);
+      setup.appendChild(this.quitButton());
     },
 
     finishEvent: function (eventId, list) {
