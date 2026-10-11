@@ -63,14 +63,14 @@
       phase: 'intro',     // intro → clean → rack → jerk → hold → good | fail → result
       kg: kg,
       t: 0,
-      freq: 0.7 + 0.9 * x,          // 바늘 왕복 속도 (회/초)
-      width: Math.max(0.04, Math.min(0.34, 0.34 - 0.26 * x)),
+      freq: (0.7 + 0.9 * x) * (1 - 0.15 * BOOST_K), // 바늘 왕복 속도 (회/초)
+      width: Math.max(0.04, Math.min(0.34, 0.34 - 0.26 * x)) * (1 + 0.35 * BOOST_K),
       center: 0.5,
       needle: 0,
       q: [],                         // 클린/저크 정확도 0~1
       barY: BAR_Y.floor, barFrom: BAR_Y.floor, barTo: BAR_Y.floor, barK: 1,
       tilt: 0, omega: 0,
-      instab: 0.8 + 7 * x,
+      instab: (0.8 + 7 * x) * (1 - 0.25 * BOOST_K),
       noise: 18 * kg / 200,
       left: false, right: false,
       holdT: 0,
@@ -121,7 +121,14 @@
   }
 
   var pick = FIRST_KG;
+  // ---- 올림픽 모드: 나라 실력(★)에 따른 보너스 (★1 = 보너스 없음) ----
+  var BOOST_K = 0;
+  function applyBoost(idx) {
+    BOOST_K = SO.olympic.k('weightlifting', idx); // newAttempt 에서 바늘 속도·구간·흔들림에 반영
+  }
+
   function beginTurn() {
+    applyBoost(match.turn % match.players.length);
     var p = currentPlayer();
     pick = Math.max(minKg(p), defaultKg(p));
     newAttempt(pick);
@@ -131,6 +138,7 @@
     var b = best(p);
     ui.hudBest.textContent = b == null ? '' : '최고 ' + b + 'kg';
     ui.introTurn.textContent = currentRound() + '/3차 시기' + (match.players.length > 1 ? ' · ' + (match.turn % match.players.length + 1) + '번째 선수' : '');
+    ui.introTurn.textContent += SO.olympic.introNote('weightlifting', match.turn % match.players.length);
     ui.introName.textContent = p.name;
     ui.introName.style.color = p.color;
     ui.result.classList.add('hidden');
@@ -395,6 +403,9 @@
   function showFinal() {
     ui.finalTable.innerHTML = '<tr><th></th><th>선수</th><th class="num">최고 기록</th></tr>' + rankingRows(null, true);
     show(ui.final);
+    SO.olympic.onFinal('weightlifting', ranking().map(function (r) {
+      return { idx: match.players.indexOf(r.p), rank: r.rank, valid: best(r.p) != null };
+    }), ui);
     SO.sound.noise(2, 0.25, 2200);
   }
 
@@ -639,5 +650,6 @@
   };
 
   SO.registerSW('../../sw.js');
-  startSetup();
+  if (SO.olympic.active()) SO.olympic.start('weightlifting', startMatch);
+  else startSetup();
 })();

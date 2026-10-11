@@ -99,7 +99,17 @@
     beginTurn();
   }
 
+  // ---- 올림픽 모드: 나라 실력(★)에 따른 보너스 (★1 = 보너스 없음) ----
+  var BASE = { TAP_BOOST: TAP_BOOST, V_MAX: V_MAX, TAP_COST: TAP_COST };
+  function applyBoost(idx) {
+    var k = SO.olympic.k('sprint-100m', idx);
+    TAP_BOOST = BASE.TAP_BOOST * (1 + 0.08 * k); // 더 빨리 달리고
+    V_MAX = BASE.V_MAX * (1 + 0.04 * k);
+    TAP_COST = BASE.TAP_COST * (1 - 0.15 * k);   // 덜 지침
+  }
+
   function beginTurn() {
+    applyBoost(match.turn % match.players.length);
     newRace();
     var p = currentPlayer();
     ui.hudDot.style.background = p.color;
@@ -109,6 +119,7 @@
     ui.hudBest.textContent = b == null ? '' : '최고 ' + fmtTime(b);
     ui.introTurn.textContent = (match.attempts > 1 ? currentRound() + '차 레이스' : '레이스') +
       (match.players.length > 1 ? ' · ' + (match.turn % match.players.length + 1) + '번째 선수' : '');
+    ui.introTurn.textContent += SO.olympic.introNote('sprint-100m', match.turn % match.players.length);
     ui.introName.textContent = p.name;
     ui.introName.style.color = p.color;
     ui.result.classList.add('hidden');
@@ -357,6 +368,9 @@
   function showFinal() {
     ui.finalTable.innerHTML = '<tr><th></th><th>선수</th><th class="num">최고 기록</th></tr>' + rankingRows(null, true);
     show(ui.final);
+    SO.olympic.onFinal('sprint-100m', ranking().map(function (r) {
+      return { idx: match.players.indexOf(r.p), rank: r.rank, valid: best(r.p) != null };
+    }), ui);
     SO.sound.noise(2, 0.25, 2200);
   }
 
@@ -566,5 +580,6 @@
   };
 
   SO.registerSW('../../sw.js');
-  startSetup();
+  if (SO.olympic.active()) SO.olympic.start('sprint-100m', startMatch);
+  else startSetup();
 })();

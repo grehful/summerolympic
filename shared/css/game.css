@@ -96,7 +96,7 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   touch-action: pan-y;
 }
-.intro-turn { color: var(--muted); font-weight: 700; text-align: center; }
+.intro-turn { color: var(--muted); font-weight: 700; text-align: center; white-space: pre-line; }
 .intro-name { font-size: 34px; font-weight: 900; text-align: center; margin: 4px 0 10px; }
 .howto { margin: 0 0 16px; padding-left: 22px; line-height: 1.5; font-size: 15px; color: #dbe5ef; }
 .howto .red { color: var(--bad); }

@@ -25,6 +25,15 @@
     .game-card .name { font-size: 19px; font-weight: 800; }
     .game-card .desc { font-size: 13px; color: var(--muted); }
     .game-card.soon { opacity: 0.45; pointer-events: none; }
+    .olympic-btn {
+      display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 16px 18px;
+      border-radius: var(--radius); text-decoration: none; color: #1a1205;
+      background: linear-gradient(135deg, #ffd166, #fb8500);
+    }
+    .olympic-btn:active { transform: scale(0.98); }
+    .olympic-btn .icon { font-size: 42px; }
+    .olympic-btn .name { font-size: 21px; font-weight: 800; display: block; }
+    .olympic-btn .desc { font-size: 13px; opacity: 0.8; }
     .tip { margin-top: 20px; font-size: 13px; text-align: center; }
   </style>
 </head>
@@ -38,6 +47,10 @@
         <h1>Summer Olympic</h1>
         <div class="muted">종목을 골라 주세요</div>
       </header>
+      <a class="olympic-btn" href="olympic/" id="olympicBtn">
+        <span class="icon">🏅</span>
+        <span><span class="name" id="olympicName">올림픽 모드</span><span class="desc">나라를 골라 여러 종목으로 메달 경쟁! 나라마다 강한 종목이 달라요</span></span>
+      </a>
       <nav class="grid" id="grid"></nav>
       <p class="tip muted" id="tip">크롬 메뉴 ⋮ → <b>홈 화면에 추가</b>를 누르면 앱처럼 전체화면으로 즐길 수 있어요.</p>
     </div>
@@ -49,6 +62,12 @@
       return '<a class="game-card' + (g.ready ? '' : ' soon') + '" href="' + (g.ready ? 'games/' + g.id + '/' : '#') + '">' +
         '<span class="icon">' + g.icon + '</span><span class="name">' + g.name + '</span><span class="desc">' + g.desc + '</span></a>';
     }).join('');
+    try {
+      var sess = JSON.parse(localStorage.getItem('so:olympic') || 'null');
+      if (sess && sess.events && sess.events.some(function (e) { return !(sess.results || {})[e]; })) {
+        document.getElementById('olympicName').textContent = '올림픽 모드 (이어하기)';
+      }
+    } catch (e) { /* 무시 */ }
     if (SO.isApp) document.getElementById('tip').remove();
     SO.registerSW('sw.js');
   </script>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>올림픽 모드</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <link rel="stylesheet" href="olympic.css">
+</head>
+<body>
+  <!-- 1. 선수 수·종목 수 -->
+  <div id="setup" class="screen hidden"></div>
+
+  <!-- 2. 나라 고르기 -->
+  <div id="pick" class="screen hidden">
+    <div class="setup wide">
+      <h1 class="setup-title" id="pickTitle"></h1>
+      <p class="setup-sub muted">★이 많은 종목일수록 경기에서 유리해요</p>
+      <div class="country-grid" id="countryGrid"></div>
+      <div class="pick-foot">
+        <div class="pick-detail hidden" id="pickDetail"></div>
+        <button type="button" class="btn btn-primary btn-block" id="pickOk" disabled>이 나라로!</button>
+        <div class="row2">
+          <button type="button" class="btn" id="pickRandom">🎲 랜덤</button>
+          <button type="button" class="btn btn-ghost" id="pickBack">← 이전</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 일정 & 메달 순위 -->
+  <div id="board" class="screen hidden">
+    <div class="setup wide">
+      <h1 class="setup-title">🏅 올림픽</h1>
+      <div class="card next-card" id="nextCard"></div>
+      <div class="card"><h3>메달 순위</h3><table class="ranking medal-table" id="medalTable"></table></div>
+      <div class="card"><h3>경기 일정</h3><ol class="schedule" id="schedule"></ol></div>
+      <button type="button" class="btn btn-ghost btn-block" id="quitBtn">올림픽 그만두기</button>
+      <a class="btn btn-ghost btn-block" href="../">메인으로</a>
+    </div>
+  </div>
+
+  <!-- 4. 시상식 -->
+  <div id="ceremony" class="screen hidden">
+    <div class="setup wide">
+      <h1 class="setup-title" id="cerTitle"></h1>
+      <div class="podium" id="podium"></div>
+      <div class="card"><table class="ranking" id="cerTable"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="cerOk">메달 순위 보기</button>
+    </div>
+  </div>
+
+  <!-- 5. 폐회식 -->
+  <div id="closing" class="screen hidden">
+    <div class="setup wide">
+      <h1 class="setup-title">🎆 폐회식</h1>
+      <div class="champion card" id="champion"></div>
+      <div class="card"><h3>최종 메달 순위</h3><table class="ranking medal-table" id="finalMedals"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="newBtn">새 올림픽</button>
+      <a class="btn btn-ghost btn-block" href="../">메인으로</a>
+    </div>
+  </div>
+
+  <script src="../shared/js/device.js"></script>
+  <script src="../shared/js/players.js"></script>
+  <script src="../shared/js/countries.js"></script>
+  <script src="../shared/js/olympic.js"></script>
+  <script src="olympic.js"></script>
+</body>
+</html>

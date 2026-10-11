@@ -4,7 +4,7 @@
 #   sudo apt-get install -y aapt apksigner zipalign dalvik-exchange android-sdk-platform-23 openjdk-17-jdk-headless
 #   ./android/build.sh            → android/build/summerolympic.apk
 #
-# 웹 게임 파일(index.html, shared/, games/, icons/)을 그대로 assets/www 에 넣는다.
+# 웹 게임 파일(index.html, shared/, games/, olympic/, icons/)을 그대로 assets/www 에 넣는다.
 # 새 종목을 추가해도 이 스크립트는 고칠 필요 없음 — 다시 실행만 하면 된다.
 set -euo pipefail
 
@@ -26,7 +26,7 @@ mkdir -p "$OUT/gen" "$OUT/classes" "$OUT/assets/www"
 
 echo "== 게임 파일 복사"
 cp "$ROOT/index.html" "$ROOT/manifest.webmanifest" "$OUT/assets/www/"
-cp -r "$ROOT/shared" "$ROOT/games" "$ROOT/icons" "$OUT/assets/www/"
+cp -r "$ROOT/shared" "$ROOT/games" "$ROOT/olympic" "$ROOT/icons" "$OUT/assets/www/"
 
 echo "== 리소스 (R.java)"
 aapt package -f -m -J "$OUT/gen" -M "$HERE/AndroidManifest.xml" -S "$HERE/res" -I "$SDK"

@@ -1,0 +1,74 @@
+/* 올림픽 모드 진행 화면 */
+.setup.wide { max-width: 560px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ---- 나라 고르기 ---- */
+.country-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.country {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 10px 4px 8px; border-radius: 12px; background: var(--panel);
+  border: 2px solid transparent; min-height: 92px;
+}
+.country .flag { font-size: 30px; line-height: 1.1; }
+.country .cname { font-size: 14px; font-weight: 700; }
+.country .best { font-size: 15px; letter-spacing: 1px; min-height: 18px; }
+.country[aria-pressed="true"] { border-color: var(--accent); background: var(--panel-2); }
+.country:disabled { opacity: 0.3; }
+.country .taken { font-size: 11px; color: var(--muted); }
+
+.pick-foot {
+  position: sticky; bottom: calc(-1 * max(16px, env(safe-area-inset-bottom))); margin: 0 -4px;
+  display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--panel); box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+}
+.pick-foot .btn { min-height: 46px; }
+.pick-detail .head { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.pick-detail .head .flag { font-size: 28px; }
+.rating-list { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; font-size: 13px; }
+.rating-list .r { display: flex; justify-content: space-between; gap: 4px; white-space: nowrap; }
+.rating-list .r span:first-child { overflow: hidden; text-overflow: ellipsis; }
+.stars { color: var(--gold); letter-spacing: 1px; white-space: nowrap; }
+.stars .off { color: var(--panel-2); }
+
+/* ---- 일정·메달 ---- */
+.next-card { text-align: center; }
+.next-card .label { color: var(--muted); font-size: 14px; }
+.next-card .ev { font-size: 26px; font-weight: 800; margin: 4px 0 10px; }
+.next-card .ev .icon { font-size: 36px; display: block; }
+.next-card .who { display: grid; gap: 4px; margin-bottom: 14px; font-size: 15px; text-align: left; }
+.next-card .who .r { display: flex; justify-content: space-between; gap: 8px; }
+
+.medal-table td.m { text-align: center; width: 42px; font-weight: 800; }
+.medal-table th.m { text-align: center; }
+.medal-table .pname { font-weight: 700; }
+.medal-table .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+
+.schedule { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.schedule li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--bg); }
+.schedule li .icon { font-size: 22px; width: 28px; text-align: center; }
+.schedule li .nm { flex: 1; font-weight: 700; }
+.schedule li .res { font-size: 14px; color: var(--muted); }
+.schedule li.now { outline: 2px solid var(--accent); }
+.schedule li.done .nm { color: var(--muted); }
+
+/* ---- 시상식 ---- */
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; min-height: 220px; }
+.podium .step { flex: 1; max-width: 150px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.podium .step .who { text-align: center; font-weight: 700; font-size: 15px; word-break: keep-all; }
+.podium .step .medal { font-size: 36px; animation: drop 0.6s ease-out both; }
+.podium .step .block {
+  width: 100%; border-radius: 10px 10px 0 0; display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 8px; font-size: 26px; font-weight: 800; color: #1a1205;
+}
+.podium .p1 .block { height: 120px; background: var(--gold); }
+.podium .p2 .block { height: 86px; background: var(--silver); }
+.podium .p3 .block { height: 60px; background: var(--bronze); }
+.podium .p1 .medal { animation-delay: 0.9s; }
+.podium .p2 .medal { animation-delay: 0.5s; }
+.podium .p3 .medal { animation-delay: 0.1s; }
+@keyframes drop { from { transform: translateY(-40px) scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.champion { text-align: center; }
+.champion .flag { font-size: 64px; line-height: 1.1; }
+.champion .title { color: var(--gold); font-weight: 800; font-size: 16px; }
+.champion .nm { font-size: 26px; font-weight: 800; margin: 4px 0; }

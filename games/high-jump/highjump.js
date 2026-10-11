@@ -123,7 +123,19 @@
     beginTurn();
   }
 
+  // ---- 올림픽 모드: 나라 실력(★)에 따른 보너스 (★1 = 보너스 없음) ----
+  var BASE = { LIFT: LIFT, ZONE_LO: ZONE_LO, ZONE_HI: ZONE_HI };
+  function applyBoost(idx) {
+    var k = SO.olympic.k('high-jump', idx);
+    LIFT = BASE.LIFT * (1 + 0.05 * k);     // 더 높이
+    ZONE_LO = BASE.ZONE_LO - 0.4 * k;      // 적정 속도 폭이 넓어짐
+    ZONE_HI = BASE.ZONE_HI + 0.4 * k;
+    zone.style.left = (ZONE_LO / GAUGE_MAX * 100) + '%';
+    zone.style.width = ((ZONE_HI - ZONE_LO) / GAUGE_MAX * 100) + '%';
+  }
+
   function beginTurn() {
+    applyBoost(match.players.indexOf(match.turn.p));
     newAttempt();
     var p = match.turn.p;
     s.color = p.color;
@@ -133,6 +145,7 @@
     var b = best(p);
     ui.hudBest.textContent = b == null ? '' : '최고 ' + fmtH(b);
     ui.introTurn.textContent = (match.raised ? '⬆ 바가 올라갔어요! ' : '') + fmtH(match.height) + ' · ' + match.turn.attempt + '/3차 시기';
+    ui.introTurn.textContent += SO.olympic.introNote('high-jump', match.players.indexOf(match.turn.p));
     match.raised = false;
     ui.introName.textContent = p.name;
     ui.introName.style.color = p.color;
@@ -442,6 +455,9 @@
   function showFinal() {
     ui.finalTable.innerHTML = '<tr><th></th><th>선수</th><th class="num">최고 기록</th></tr>' + rankingRows(null, true);
     show(ui.final);
+    SO.olympic.onFinal('high-jump', ranking().map(function (r) {
+      return { idx: match.players.indexOf(r.p), rank: r.rank, valid: best(r.p) != null };
+    }), ui);
     SO.sound.noise(2, 0.25, 2200);
   }
 
@@ -670,5 +686,6 @@
   };
 
   SO.registerSW('../../sw.js');
-  startSetup();
+  if (SO.olympic.active()) SO.olympic.start('high-jump', startMatch);
+  else startSetup();
 })();

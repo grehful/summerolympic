@@ -91,7 +91,7 @@
   }
   // 숨쉬듯 8자로 움직이는 흔들림
   function sway() {
-    var amp = s.phase === 'draw' ? swayAmp(now - s.drawStart) : 14;
+    var amp = (s.phase === 'draw' ? swayAmp(now - s.drawStart) : 14) * SWAY_SCALE;
     var p = s.ph;
     return {
       x: amp * (0.7 * Math.sin(1.1 * now + p[0]) + 0.3 * Math.sin(2.7 * now + p[1])),
@@ -148,7 +148,14 @@
     beginTurn();
   }
 
+  // ---- 올림픽 모드: 나라 실력(★)에 따른 보너스 (★1 = 보너스 없음) ----
+  var SWAY_SCALE = 1;
+  function applyBoost(idx) {
+    SWAY_SCALE = 1 - 0.35 * SO.olympic.k('archery', idx); // 조준점이 덜 흔들림
+  }
+
   function beginTurn() {
+    applyBoost(match.turn % match.players.length);
     newEnd();
     var p = currentPlayer();
     ui.hudDot.style.background = p.color;
@@ -156,6 +163,7 @@
     ui.hudEnd.textContent = currentEnd() + '/' + match.ends + '엔드';
     ui.hudTotal.textContent = '합계 ' + total(p);
     ui.introTurn.textContent = currentEnd() + '엔드' + (match.players.length > 1 ? ' · ' + (match.turn % match.players.length + 1) + '번째 선수' : '');
+    ui.introTurn.textContent += SO.olympic.introNote('archery', match.turn % match.players.length);
     ui.introName.textContent = p.name;
     ui.introName.style.color = p.color;
     ui.result.classList.add('hidden');
@@ -363,6 +371,9 @@
   function showFinal() {
     ui.finalTable.innerHTML = '<tr><th></th><th>선수</th><th class="num">총점</th></tr>' + rankingRows(null, true);
     show(ui.final);
+    SO.olympic.onFinal('archery', ranking().map(function (r) {
+      return { idx: match.players.indexOf(r.p), rank: r.rank, valid: total(r.p) > 0 };
+    }), ui);
     SO.sound.noise(2, 0.25, 2200);
   }
 
@@ -624,5 +635,6 @@
   };
 
   SO.registerSW('../../sw.js');
-  startSetup();
+  if (SO.olympic.active()) SO.olympic.start('archery', startMatch);
+  else startSetup();
 })();

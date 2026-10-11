@@ -107,7 +107,16 @@
     beginTurn();
   }
 
+  // ---- 올림픽 모드: 나라 실력(★)에 따른 보너스 (★1 = 보너스 없음) ----
+  var BASE = { ARM_GAIN: ARM_GAIN, RUN_GAIN: RUN_GAIN };
+  function applyBoost(idx) {
+    var k = SO.olympic.k('javelin', idx);
+    ARM_GAIN = BASE.ARM_GAIN * (1 + 0.07 * k); // 팔 힘
+    RUN_GAIN = BASE.RUN_GAIN * (1 + 0.07 * k); // 도움닫기 힘
+  }
+
   function beginTurn() {
+    applyBoost(match.turn % match.players.length);
     newAttempt();
     var p = currentPlayer();
     ui.hudDot.style.background = p.color;
@@ -116,6 +125,7 @@
     var b = best(p);
     ui.hudBest.textContent = b == null ? '' : '최고 ' + fmtDist(b);
     ui.introTurn.textContent = currentRound() + '차 시기' + (match.players.length > 1 ? ' · ' + (match.turn % match.players.length + 1) + '번째 선수' : '');
+    ui.introTurn.textContent += SO.olympic.introNote('javelin', match.turn % match.players.length);
     ui.introName.textContent = p.name;
     ui.introName.style.color = p.color;
     ui.result.classList.add('hidden');
@@ -399,6 +409,9 @@
   function showFinal() {
     ui.finalTable.innerHTML = '<tr><th></th><th>선수</th><th class="num">최고 기록</th></tr>' + rankingRows(null, true);
     show(ui.final);
+    SO.olympic.onFinal('javelin', ranking().map(function (r) {
+      return { idx: match.players.indexOf(r.p), rank: r.rank, valid: best(r.p) != null };
+    }), ui);
     SO.sound.noise(2, 0.25, 2200);
   }
 
@@ -672,5 +685,6 @@
   };
 
   SO.registerSW('../../sw.js');
-  startSetup();
+  if (SO.olympic.active()) SO.olympic.start('javelin', startMatch);
+  else startSetup();
 })();
