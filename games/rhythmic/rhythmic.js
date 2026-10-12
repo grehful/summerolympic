@@ -134,7 +134,9 @@
       cur: -1,
       finger: null,      // { x, y } (화면 좌표, 누르고 있을 때만)
       upTime: 0,
-      elemSum: 0, elemDur: 0, elemDrop: false,
+      elemSum: 0, elemDur: 0, elemDrop: false, elemDropU: null,
+      fallen: null,      // 연기 중 떨어뜨린 리본 막대 { x, y, vx, vy, a, va }
+      hand: null,        // 마지막으로 그린 손·막대 위치
       beatSum: 0, beatDur: 0,
       combo: 0, maxCombo: 0, perfectBeats: 0, moveBeats: 0,
       results: [],       // { name, d, acc, counted, drop }
@@ -281,8 +283,9 @@
         if (s.upTime > DROP_TIME && !s.elemDrop) {
           s.elemDrop = true;
           s.drops++;
-          showBanner('리본 떨어뜨림!', true);
-          setTimeout(function () { if (ui.banner.textContent === '리본 떨어뜨림!') hideBanner(); }, 700);
+          // 손을 놓은 순간 = 리본을 떨어뜨린 순간 (연기 때 그 자리에서 떨어뜨림)
+          var mdur = tl.moveEnd - tl.moveStart;
+          s.elemDropU = Math.max(0, (s.t - tl.moveStart - s.upTime) / mdur);
           SO.sound.sweep(400, 120, 0.3, 'sawtooth', 0.1);
           SO.vibrate(80);
         }
@@ -309,7 +312,8 @@
     }
     if (b.el !== s.cur) {
       s.cur = b.el;
-      s.elemSum = 0; s.elemDur = 0; s.elemDrop = false;
+      s.elemSum = 0; s.elemDur = 0; s.elemDrop = false; s.elemDropU = null; s.upTime = 0;
+      s.fallen = null;
       s.samples = [];
       s.perfTrail = [];
       s.cheered = false;
@@ -348,7 +352,7 @@
     if (!el || s.results.length > s.cur) return;
     var acc = s.elemDur > 0 ? s.elemSum / s.elemDur : 0;
     var counted = acc >= COUNT_ACC;
-    s.results.push({ name: el.name, d: el.d, acc: acc, counted: counted, drop: s.elemDrop, samples: s.samples });
+    s.results.push({ name: el.name, d: el.d, acc: acc, counted: counted, drop: s.elemDrop, dropU: s.elemDrop ? s.elemDropU : null, samples: s.samples });
     s.ribbon = [];  // 이제부터는 선수가 연기하는 리본만 보이게
     showChip((counted ? '✓ ' : '✗ ') + el.name + ' ' + Math.round(acc * 100) + '%', counted ? 'good' : 'bad');
     if (counted && acc >= 0.85) SO.sound.sweep(880, 1760, 0.15, 'sine', 0.08);
@@ -404,14 +408,40 @@
     var f = gymnastFrame();
     return { x: f.cx + q.x * f.sp, y: f.cy + q.y * f.sp };
   }
+  // 연기 중 리본을 떨어뜨렸나 (따라 그릴 때 손을 놓은 지점부터)
+  function droppedNow() {
+    var r = s.results[s.cur];
+    return !!r && r.dropU != null && performU() >= r.dropU;
+  }
+
   function updatePerform(dt) {
-    var tip = performTip(performU());
+    var dropped = droppedNow();
+    var tip = dropped ? null : performTip(performU());
     var tr = s.perfTrail;
+    if (dropped && !s.fallen && s.hand) {
+      // 막대를 놓침: 손에서 빠져나가 바닥으로
+      s.fallen = { x: s.hand.x, y: s.hand.y, vx: (s.hand.dx || 0) * 120, vy: -120, a: s.hand.a, va: 7 * (Math.random() < 0.5 ? -1 : 1), t: s.now };
+      SO.sound.sweep(500, 110, 0.45, 'triangle', 0.12);
+      SO.vibrate([60, 40, 60]);
+    }
+    if (s.fallen) {
+      var fo = s.fallen;
+      fo.vy += 1400 * dt; fo.x = Math.max(10, Math.min(W - 10, fo.x + fo.vx * dt)); fo.y += fo.vy * dt; fo.a += fo.va * dt;
+      if (fo.y > FLOOR - 10) {
+        fo.y = FLOOR - 10;
+        if (Math.abs(fo.vy) > 120) { fo.vy *= -0.35; SO.sound.beep(180, 0.05, 'square', 0.08); } else fo.vy = 0;
+        fo.vx *= 0.6; fo.va *= 0.5;
+        if (fo.vy === 0) fo.a += (Math.round(fo.a / Math.PI) * Math.PI - fo.a) * Math.min(1, dt * 10);  // 바닥에 눕힘
+      }
+    }
     if (tip) tr.push({ x: tip.x, y: tip.y, t: s.now, vy: 0 });
-    else tr.forEach(function (q) { q.vy += 900 * dt; q.y = Math.min(FLOOR, q.y + q.vy * dt); });
+    else {
+      // 리본이 바닥으로 흘러내려 그대로 깔림 (사라지지 않게 나이를 멈춤)
+      tr.forEach(function (q) { q.vy += 1800 * dt; q.y = Math.min(FLOOR - 4 - (q.x % 5), q.y + q.vy * dt); if (dropped) q.t += dt; });
+    }
     while (tr.length && s.now - tr[0].t > 1.3) tr.shift();
     var r = s.results[s.cur];
-    if (r && !s.cheered && performU() > 0.85) {
+    if (r && !s.cheered && !dropped && r.dropU == null && performU() > 0.85) {
       s.cheered = true;
       if (r.acc >= 0.85) { SO.sound.noise(0.9, 0.14, 2500); showTiming('브라보!', 'perfect'); }
       else if (!r.counted) { SO.sound.sweep(300, 150, 0.3, 'triangle', 0.1); showTiming('휘청…', 'miss'); }
@@ -422,7 +452,7 @@
     var r = s.ribbon;
     if (s.finger) r.push({ x: s.finger.x, y: s.finger.y, t: s.now, vy: 0 });
     // 손가락을 떼면 리본이 흘러내림
-    if (!s.finger) r.forEach(function (q) { q.vy += 900 * dt; q.y += q.vy * dt; });
+    if (!s.finger) r.forEach(function (q) { q.vy += 1800 * dt; q.y = Math.min(FLOOR - 4 - (q.x % 5), q.y + q.vy * dt); q.t += dt; });
     while (r.length && s.now - r[0].t > 0.7) r.shift();
   }
 
@@ -802,7 +832,7 @@
     var f = gymnastFrame();
     var ppm = f.ppm, gx = f.gx, gy = f.gy;
     var shY = gy - 1.45 * ppm;
-    var body, armA = 2.7, tip = null;
+    var body, armA = 2.7, tip = null, dejected = 0;
     if (performing()) {
       var tl = s.els[s.cur];
       var beatF = (s.t - tl.moveEnd) / tl.bd;
@@ -812,11 +842,21 @@
       var b = MOVES[(s.cur + k) % MOVES.length];
       body = lerpPose(a, b, sm);
       var r = s.results[s.cur];
-      if (r && !r.counted && performU() > 0.8) body = { hip: 0.8, lean: 0.7, legs: [[0.6, 0.2], [-0.5, -0.1]] };  // 휘청
-      tip = performTip(performU());
+      if (droppedNow()) {
+        // 리본을 놓친 뒤: 연기를 멈추고 고개를 푹 숙임
+        var since = (performU() - r.dropU) * (tl.end - tl.moveEnd);
+        var g = Math.min(1, since / 0.5);
+        var sad = { hip: 0.92, lean: 0.5, legs: [[0.04, 0.04], [-0.04, -0.04]] };
+        body = lerpPose(body, sad, g * g * (3 - 2 * g));
+        dejected = g;
+        armA = 0.15;
+      } else {
+        if (r && !r.counted && performU() > 0.8) body = { hip: 0.8, lean: 0.7, legs: [[0.6, 0.2], [-0.5, -0.1]] };  // 휘청
+        tip = performTip(performU());
+      }
       shY = gy - (body.hip + 0.5) * ppm;
       if (tip) armA = Math.atan2(tip.x - gx, tip.y - shY);
-      else armA = 0.4;
+      else if (!dejected) armA = 0.4;
     } else if (s.phase === 'finish' || s.phase === 'result') {
       body = { hip: 0.95, lean: -0.15, legs: [[0.05, 0.05], [-1.2, -1.0]] };
       armA = 3.0;
@@ -826,7 +866,8 @@
       body = { hip: READY.hip + bob, lean: READY.lean, legs: READY.legs };
       armA = 0.5;
     }
-    var pose = { hip: body.hip, lean: body.lean, legs: body.legs, arms: [[armA, armA], [-2.4 + Math.sin(time / 300) * 0.3, -2.6]] };
+    var backArm = dejected ? [-0.1 * dejected + (-2.4) * (1 - dejected), -0.05 * dejected + (-2.6) * (1 - dejected)] : [-2.4 + Math.sin(time / 300) * 0.3, -2.6];
+    var pose = { hip: body.hip, lean: body.lean, legs: body.legs, arms: [[armA, dejected ? armA * 0.7 : armA], backArm] };
     SO.athlete.draw(ctx, pose, {
       x: 0, y: 0,
       toX: function (x) { return gx + x * ppm; },
@@ -837,6 +878,21 @@
     var hx = gx + Math.sin(pose.lean) * 0.5 * ppm + Math.sin(armA) * 0.58 * ppm;
     var hy = shY - (-Math.cos(armA)) * 0.58 * ppm;
     var dirX = Math.sin(armA), dirY = Math.cos(armA);
+    if (s.fallen || dejected) {
+      drawFallen(ppm, time);
+      if (dejected > 0.6) {
+        // 고개 숙인 머리 위에 한숨
+        var headX = gx + Math.sin(pose.lean) * 0.7 * ppm, headY = gy - (pose.hip + Math.cos(pose.lean) * 0.7) * ppm;
+        ctx.globalAlpha = Math.min(1, (dejected - 0.6) * 2.5);
+        ctx.font = '900 ' + Math.round(ppm * 0.35) + 'px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText('...', headX + 0.15 * ppm, headY - 0.3 * ppm - Math.sin(time / 300) * 3);
+        ctx.globalAlpha = 1;
+      }
+      return;
+    }
+    s.hand = { x: hx, y: hy, a: Math.atan2(dirY, dirX), dx: dirX };
     ctx.strokeStyle = '#e5e7eb';
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
@@ -860,6 +916,32 @@
       ctx.beginPath();
       ctx.moveTo(ex, ey);
       for (var j = 1; j <= 8; j++) ctx.lineTo(ex + Math.sin(time / 200 + j * 0.8) * 4 * j / 8, Math.min(FLOOR, ey + j * 0.1 * ppm));
+      ctx.stroke();
+    }
+  }
+
+  // 바닥에 떨어진 리본 막대
+  function drawFallen(ppm) {
+    var fo = s.fallen;
+    if (!fo) return;
+    var L = 0.55 * ppm;
+    var ex = fo.x + Math.cos(fo.a) * L, ey = fo.y + Math.sin(fo.a) * L;
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(fo.x, fo.y);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    // 막대 끝에서 바닥에 깔린 리본으로 이어지는 끈
+    var tr = s.perfTrail;
+    if (tr.length) {
+      var last = tr[tr.length - 1];
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.quadraticCurveTo((ex + last.x) / 2, Math.max(ey, last.y) + 6, last.x, last.y);
       ctx.stroke();
     }
   }
