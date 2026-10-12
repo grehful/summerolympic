@@ -4,6 +4,7 @@
  * 1. 음악에 맞춰 화면에 모양(물결, 원, 8자, 지그재그, 하트, 나선, 별, 두 바퀴 원)이 나타난다
  * 2. 금색 공이 박자에 맞춰 모양을 따라 움직인다. 손가락을 떼지 않고 공을 따라 그리면 리본이 따라온다
  * 3. 매 순간 손가락이 공(조금 늦는 것은 봐줌)에 가까울수록 높은 판정. 박자마다 퍼펙트/좋아요/놓침
+ *    다 그리고 나면 아래의 선수가 내가 그린 그대로 리본으로 그 모양을 연기한다
  * 4. 요소 8개, 갈수록 템포가 빨라진다. 점수 = 난도 D(정확도 50% 이상인 요소의 값 합)
  *    + 실시 E(10점 감점제: 부정확·리본 떨어뜨림) + 예술 A(퍼펙트 박자 비율 × 3)
  */
@@ -24,6 +25,7 @@
   var E_DED = 0.7;          // 요소 하나의 부정확 감점 최대
   var DROP_DED = 0.5;
   var A_MAX = 3;
+  var PERFORM = 0.75;       // 연기 시간 = 따라 그린 박자 × 이 값
 
   // 요소: 이름, 박자 수, 난도, 모양 함수 t(0~1) → [x, y] (-1~1, y는 아래로 +)
   function poly(pts) {
@@ -104,7 +106,7 @@
   function currentRound() { return Math.floor(match.turn / match.players.length) + 1; }
   function totalTurns() { return match.players.length * match.attempts; }
 
-  // 박자 일정표: 요소마다 준비 박자 → 움직이는 박자
+  // 박자 일정표: 요소마다 준비 박자 → 따라 그리는 박자 → 선수가 연기하는 박자
   function buildTimeline() {
     var beats = [], els = [], t = 0;
     ELEMENTS.forEach(function (el, i) {
@@ -114,7 +116,10 @@
       for (var b = 0; b < prep; b++) { beats.push({ t: t, kind: 'prep', el: i, left: prep - b }); t += bd; }
       var moveStart = t;
       for (var m = 0; m < el.beats; m++) { beats.push({ t: t, kind: 'move', el: i, b: m }); t += bd; }
-      els.push({ start: start, moveStart: moveStart, end: t, bd: bd });
+      var moveEnd = t;
+      var perf = Math.round(el.beats * PERFORM);
+      for (var q = 0; q < perf; q++) { beats.push({ t: t, kind: 'perform', el: i, b: q }); t += bd; }
+      els.push({ start: start, moveStart: moveStart, moveEnd: moveEnd, end: t, bd: bd });
     });
     beats.push({ t: t, kind: 'end' });
     return { beats: beats, els: els, end: t };
@@ -135,6 +140,9 @@
       results: [],       // { name, d, acc, counted, drop }
       drops: 0,
       ribbon: [],        // { x, y, t, vy }
+      samples: [],       // 지금 요소에서 그린 궤적 { u, x, y, down } (모양 좌표)
+      perfTrail: [],     // 선수가 연기하는 리본 끝 궤적
+      cheered: false,
       finishT: 0,
       lastQ: 0,
     };
@@ -257,8 +265,13 @@
     // 지금 움직이는 요소면 판정
     var i = s.cur;
     var tl = s.els[i];
-    if (tl && s.t >= tl.moveStart && s.t < tl.end) {
+    if (tl && s.t >= tl.moveStart && s.t < tl.moveEnd) {
       var q = 0;
+      s.samples.push({
+        u: (s.t - tl.moveStart) / (tl.moveEnd - tl.moveStart),
+        x: s.finger ? (s.finger.x - CX) / S : 0, y: s.finger ? (s.finger.y - CY) / S : 0,
+        down: !!s.finger,
+      });
       if (s.finger) {
         s.upTime = 0;
         var d = distToBall(i, s.t) / scale();
@@ -278,15 +291,15 @@
       s.elemSum += q * dt; s.elemDur += dt;
       s.beatSum += q * dt; s.beatDur += dt;
     }
+    if (performing()) updatePerform(dt);
     updateRibbon(dt);
   }
 
   function onBeat(b) {
     // 직전 박자 판정
     if (s.beatDur > 0) judgeBeat();
-    if (b.kind === 'prep' && b.el !== s.cur && s.cur >= 0) finishElement();
+    if (b.kind === 'perform' && b.b === 0) finishElement();
     if (b.kind === 'end') {
-      finishElement();
       s.phase = 'finish';
       s.finishT = 0;
       showBanner('피니시!', false);
@@ -297,6 +310,9 @@
     if (b.el !== s.cur) {
       s.cur = b.el;
       s.elemSum = 0; s.elemDur = 0; s.elemDrop = false;
+      s.samples = [];
+      s.perfTrail = [];
+      s.cheered = false;
     }
     // 음악: 박자 소리 + 멜로디
     var down = b.kind === 'prep' ? b.left === 1 : b.b % 2 === 0;
@@ -332,7 +348,8 @@
     if (!el || s.results.length > s.cur) return;
     var acc = s.elemDur > 0 ? s.elemSum / s.elemDur : 0;
     var counted = acc >= COUNT_ACC;
-    s.results.push({ name: el.name, d: el.d, acc: acc, counted: counted, drop: s.elemDrop });
+    s.results.push({ name: el.name, d: el.d, acc: acc, counted: counted, drop: s.elemDrop, samples: s.samples });
+    s.ribbon = [];  // 이제부터는 선수가 연기하는 리본만 보이게
     showChip((counted ? '✓ ' : '✗ ') + el.name + ' ' + Math.round(acc * 100) + '%', counted ? 'good' : 'bad');
     if (counted && acc >= 0.85) SO.sound.sweep(880, 1760, 0.15, 'sine', 0.08);
   }
@@ -340,7 +357,7 @@
   // 손가락과 공 사이 거리 (조금 늦거나 이른 것은 봐줌)
   function distToBall(i, t) {
     var tl = s.els[i], el = ELEMENTS[i];
-    var dur = tl.end - tl.moveStart;
+    var dur = tl.moveEnd - tl.moveStart;
     var best = Infinity;
     for (var k = 0; k <= 8; k++) {
       var tt = t - LAG + (LAG + LEAD) * k / 8;
@@ -354,8 +371,51 @@
   function ballPos() {
     var tl = s.els[s.cur];
     if (!tl) return null;
-    var u = s.t < tl.moveStart ? 0 : (s.t - tl.moveStart) / (tl.end - tl.moveStart);
+    var u = s.t < tl.moveStart ? 0 : (s.t - tl.moveStart) / (tl.moveEnd - tl.moveStart);
     return toScreen(pathAt(ELEMENTS[s.cur], u));
+  }
+
+  // ---- 선수 연기: 내가 그린 궤적을 그대로 리본으로 재현 ----
+  function performing() {
+    var tl = s.els[s.cur];
+    return s.phase === 'play' && tl && s.t >= tl.moveEnd && s.t < tl.end;
+  }
+  function performU() {
+    var tl = s.els[s.cur];
+    return (s.t - tl.moveEnd) / (tl.end - tl.moveEnd);
+  }
+  // 선수 위치·크기와 연기 모양의 중심·크기
+  function gymnastFrame() {
+    var ppm = Math.min(H * (WIDE ? 0.2 : 0.11), 90);
+    // 세로: 모양 바로 아래 가운데 / 가로: 모양 왼쪽 옆
+    var gx = WIDE ? Math.max(W * 0.1, CX - S * 1.35) : W / 2, gy = FLOOR - 4;
+    // 연기 모양은 내가 따라 그린 자리에 같은 크기로 (리본이 길게 휘날림)
+    return { ppm: ppm, gx: gx, gy: gy, sp: S * 0.9, cx: CX, cy: CY };
+  }
+  // 연기 진행도 u 에서 리본 끝 위치 (손가락을 뗐던 곳이면 null = 리본이 떨어짐)
+  function performTip(u) {
+    var r = s.results[s.cur];
+    var sm = r ? r.samples : [];
+    if (!sm.length) return null;
+    var lo = 0, hi = sm.length - 1;
+    while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (sm[mid].u <= u) lo = mid; else hi = mid; }
+    var q = sm[u >= sm[hi].u ? hi : lo];
+    if (!q.down) return null;
+    var f = gymnastFrame();
+    return { x: f.cx + q.x * f.sp, y: f.cy + q.y * f.sp };
+  }
+  function updatePerform(dt) {
+    var tip = performTip(performU());
+    var tr = s.perfTrail;
+    if (tip) tr.push({ x: tip.x, y: tip.y, t: s.now, vy: 0 });
+    else tr.forEach(function (q) { q.vy += 900 * dt; q.y = Math.min(FLOOR, q.y + q.vy * dt); });
+    while (tr.length && s.now - tr[0].t > 1.3) tr.shift();
+    var r = s.results[s.cur];
+    if (r && !s.cheered && performU() > 0.85) {
+      s.cheered = true;
+      if (r.acc >= 0.85) { SO.sound.noise(0.9, 0.14, 2500); showTiming('브라보!', 'perfect'); }
+      else if (!r.counted) { SO.sound.sweep(300, 150, 0.3, 'triangle', 0.1); showTiming('휘청…', 'miss'); }
+    }
   }
 
   function updateRibbon(dt) {
@@ -572,8 +632,10 @@
       ctx.fill();
     }
 
-    if (s.phase === 'play' && s.cur >= 0) drawGuide(time);
+    if (performing()) drawPerformGhost();
+    else if (s.phase === 'play' && s.cur >= 0) drawGuide(time);
     drawGymnast(time);
+    if (performing()) drawTrail(s.perfTrail, 1.3, 14, true, time);
     drawRibbon(time);
   }
 
@@ -667,13 +729,15 @@
     ctx.stroke();
   }
 
-  function drawRibbon(time) {
-    var r = s.ribbon;
+  function drawRibbon(time) { drawTrail(s.ribbon, 0.7, 12, false, time); }
+
+  function drawTrail(r, life, width, sparkle, time) {
     if (r.length < 2) return;
     var col = currentPlayer().color;
+    var good = sparkle && s.results[s.cur] && s.results[s.cur].acc >= 0.85;
     ctx.lineCap = 'round';
     for (var i = 1; i < r.length; i++) {
-      var age = (s.now - r[i].t) / 0.7;
+      var age = (s.now - r[i].t) / life;
       var a = r[i - 1], b = r[i];
       var dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
       // 리본이 살랑거리도록 옆으로 흔들기
@@ -681,36 +745,123 @@
       var nx = -dy / l * wob, ny = dx / l * wob;
       ctx.strokeStyle = i % 2 ? col : '#f472b6';
       ctx.globalAlpha = Math.max(0, 1 - age);
-      ctx.lineWidth = Math.max(1, 12 * (1 - age));
+      ctx.lineWidth = Math.max(1, width * (1 - age));
       ctx.beginPath();
       ctx.moveTo(a.x + nx, a.y + ny);
       ctx.lineTo(b.x + nx, b.y + ny);
       ctx.stroke();
+      // 잘 그린 요소는 반짝이
+      if (good && i % 6 === 0) {
+        ctx.fillStyle = '#fde047';
+        ctx.beginPath();
+        ctx.arc(b.x + Math.sin(i + time / 90) * 10, b.y + Math.cos(i * 1.7 + time / 110) * 10, 2.5 * (1 - age) + 0.5, 0, TAU);
+        ctx.fill();
+      }
     }
     ctx.globalAlpha = 1;
   }
 
+  // 연기하는 동안 위쪽엔 내가 그린 궤적을 흐리게 남겨둔다
+  function drawPerformGhost() {
+    var r = s.results[s.cur];
+    if (!r) return;
+    var fade = Math.max(0, 1 - performU() * 1.3);
+    if (fade <= 0) return;
+    ctx.strokeStyle = 'rgba(244,114,182,' + (0.5 * fade) + ')';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    var pen = false;
+    r.samples.forEach(function (q) {
+      if (!q.down) { pen = false; return; }
+      var x = CX + q.x * S, y = CY + q.y * S;
+      if (pen) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+      pen = true;
+    });
+    ctx.stroke();
+  }
+
+  // 연기 동작: 비트마다 다음 자세로 부드럽게 넘어감
+  var MOVES = [
+    { hip: 1.02, lean: -0.05, legs: [[0.05, 0.05], [-0.05, -0.05]] },   // 까치발 (를르베)
+    { hip: 1.35, lean: 0.1, legs: [[1.3, 1.1], [-1.3, -1.4]] },        // 다리 찢어 뛰기 (리프)
+    { hip: 0.95, lean: 0.4, legs: [[0.0, 0.0], [-1.5, -1.6]] },        // 아라베스크
+    { hip: 0.98, lean: 0, legs: [[0.05, 0.05], [1.4, -0.4]] },         // 파세
+  ];
+  function lerpPose(a, b, f) {
+    var L = function (x, y) { return x + (y - x) * f; };
+    return {
+      hip: L(a.hip, b.hip), lean: L(a.lean, b.lean),
+      legs: [[L(a.legs[0][0], b.legs[0][0]), L(a.legs[0][1], b.legs[0][1])], [L(a.legs[1][0], b.legs[1][0]), L(a.legs[1][1], b.legs[1][1])]],
+    };
+  }
+  var READY = { hip: 0.95, lean: 0.05, legs: [[0.15, 0.1], [-0.3, -0.2]] };
+
   function drawGymnast(time) {
-    var ppm = Math.min(H * (WIDE ? 0.2 : 0.11), 90);
-    var gx = WIDE ? W * 0.13 : W / 2, gy = FLOOR - 4;
-    var hand = s.finger;
-    var armA = 2.6;
-    if (hand) {
-      // 손가락 쪽으로 팔 뻗기 (각도 0 = 아래, π = 위)
-      var shY = gy - 1.45 * ppm;
-      armA = Math.atan2(hand.x - gx, hand.y - shY);
+    var f = gymnastFrame();
+    var ppm = f.ppm, gx = f.gx, gy = f.gy;
+    var shY = gy - 1.45 * ppm;
+    var body, armA = 2.7, tip = null;
+    if (performing()) {
+      var tl = s.els[s.cur];
+      var beatF = (s.t - tl.moveEnd) / tl.bd;
+      var k = Math.floor(beatF), fr = beatF - k;
+      var sm = fr * fr * (3 - 2 * fr);
+      var a = k === 0 ? READY : MOVES[(s.cur + k - 1) % MOVES.length];
+      var b = MOVES[(s.cur + k) % MOVES.length];
+      body = lerpPose(a, b, sm);
+      var r = s.results[s.cur];
+      if (r && !r.counted && performU() > 0.8) body = { hip: 0.8, lean: 0.7, legs: [[0.6, 0.2], [-0.5, -0.1]] };  // 휘청
+      tip = performTip(performU());
+      shY = gy - (body.hip + 0.5) * ppm;
+      if (tip) armA = Math.atan2(tip.x - gx, tip.y - shY);
+      else armA = 0.4;
+    } else if (s.phase === 'finish' || s.phase === 'result') {
+      body = { hip: 0.95, lean: -0.15, legs: [[0.05, 0.05], [-1.2, -1.0]] };
+      armA = 3.0;
+    } else {
+      // 따라 그리는 동안엔 리본을 쥐고 박자에 맞춰 살짝 들썩
+      var bob = s.phase === 'play' ? Math.abs(Math.sin(s.t * Math.PI / (s.els[Math.max(0, s.cur)].bd))) * 0.03 : 0;
+      body = { hip: READY.hip + bob, lean: READY.lean, legs: READY.legs };
+      armA = 0.5;
     }
-    var bob = s.phase === 'play' ? Math.sin(s.t * 6) * 0.04 : 0;
-    var finish = s.phase === 'finish' || s.phase === 'result';
-    var pose = finish
-      ? { hip: 0.95, lean: -0.15, legs: [[0.05, 0.05], [-1.2, -1.0]], arms: [[3.0, 3.1], [2.4, 2.6]] }
-      : { hip: 0.95 + bob, lean: 0.05, legs: [[0.15, 0.1], [-0.3, -0.2]], arms: [[armA, armA], [-2.4 + Math.sin(time / 300) * 0.3, -2.6]] };
+    var pose = { hip: body.hip, lean: body.lean, legs: body.legs, arms: [[armA, armA], [-2.4 + Math.sin(time / 300) * 0.3, -2.6]] };
     SO.athlete.draw(ctx, pose, {
       x: 0, y: 0,
       toX: function (x) { return gx + x * ppm; },
       toY: function (y) { return gy - y * ppm; },
       ppm: ppm, color: currentPlayer().color,
     });
+    // 리본 막대: 손에서 리본 끝 쪽으로
+    var hx = gx + Math.sin(pose.lean) * 0.5 * ppm + Math.sin(armA) * 0.58 * ppm;
+    var hy = shY - (-Math.cos(armA)) * 0.58 * ppm;
+    var dirX = Math.sin(armA), dirY = Math.cos(armA);
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(hx, hy);
+    ctx.lineTo(hx + dirX * 0.55 * ppm, hy + dirY * 0.55 * ppm);
+    ctx.stroke();
+    var ex = hx + dirX * 0.55 * ppm, ey = hy + dirY * 0.55 * ppm;
+    if (tip) {
+      // 막대 끝에서 리본 끝까지 곡선으로 이어줌
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.quadraticCurveTo((ex + tip.x) / 2 + Math.sin(time / 120) * 12, (ey + tip.y) / 2 + 10, tip.x, tip.y);
+      ctx.stroke();
+    } else {
+      // 연기 중이 아닐 땐 리본이 막대 끝에서 늘어져 있음
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      for (var j = 1; j <= 8; j++) ctx.lineTo(ex + Math.sin(time / 200 + j * 0.8) * 4 * j / 8, Math.min(FLOOR, ey + j * 0.1 * ppm));
+      ctx.stroke();
+    }
   }
 
   // ---- 메인 루프 ----
@@ -733,7 +884,7 @@
     match: function () { return match; },
     // 공의 화면(client) 좌표, 움직이는 중이 아니면 null
     ball: function () {
-      if (!s || s.phase !== 'play' || s.cur < 0) return null;
+      if (!s || s.phase !== 'play' || s.cur < 0 || performing()) return null;
       var b = ballPos(), r = ui.stage.getBoundingClientRect();
       return { x: b[0] + r.left, y: b[1] + r.top, moving: s.t >= s.els[s.cur].moveStart, scale: S };
     },
