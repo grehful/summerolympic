@@ -1,0 +1,75 @@
+/* 철봉 전용 (공통은 shared/css/game.css) */
+.pad-kick { background: linear-gradient(180deg, #38bdf8, #0284c7); }
+.pad-kick.hot { background: linear-gradient(180deg, var(--accent), var(--accent-2)); color: #1a1205; }
+.pad-kick.tuck { background: linear-gradient(180deg, #a78bfa, #7c3aed); }
+.pad-grip { background: linear-gradient(180deg, #64748b, #475569); color: #cbd5e1; }
+.pad-grip.gold { background: linear-gradient(180deg, #fde047, #eab308); color: #1a1205; }
+.pad-grip.green { background: linear-gradient(180deg, #4ade80, #16a34a); color: #052e12; }
+.pad small { font-size: 13px; font-weight: 600; opacity: 0.85; }
+.howto .gold { color: #fde047; }
+.howto .green { color: var(--good); }
+
+.time-chip, .score-chip {
+  position: absolute;
+  top: 96px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(13, 27, 42, 0.78);
+  font-weight: 800;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.time-chip { left: 10px; }
+.time-chip.low { background: var(--bad); color: #fff; }
+.score-chip { right: 10px; }
+.time-chip:empty, .score-chip:empty { display: none; }
+
+.hint {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+.timing {
+  position: absolute;
+  top: 30%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), 0 0 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+.timing.perfect { color: #fde047; }
+.timing.good { color: var(--good); }
+.timing.ok { color: #fdba74; }
+.timing.miss { color: var(--bad); }
+.timing.pop { animation: tpop 0.3s ease-out; }
+@keyframes tpop { from { transform: scale(1.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .game {
+    display: grid;
+    grid-template-columns: 22vw 1fr 22vw;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .hud { grid-column: 1 / -1; padding: 4px 14px; }
+  .controls { display: contents; }
+  .pad { margin: 8px; }
+  .pad-kick { grid-column: 1; grid-row: 2; }
+  .stage { grid-column: 2; grid-row: 2; }
+  .pad-grip { grid-column: 3; grid-row: 2; }
+  .meter-value { font-size: 26px; }
+  .time-chip, .score-chip { top: 80px; }
+}
+
+#skill { font-size: 0.72em; white-space: nowrap; }

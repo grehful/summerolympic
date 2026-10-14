@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>철봉</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../shared/css/common.css">
+  <link rel="stylesheet" href="../../shared/css/game.css">
+  <link rel="stylesheet" href="highbar.css">
+</head>
+<body>
+  <!-- 1. 플레이어 설정 -->
+  <div id="setup" class="screen"></div>
+
+  <!-- 2. 경기 화면 -->
+  <div id="game" class="game no-select hidden">
+    <header class="hud">
+      <div class="hud-player"><span class="dot" id="hudDot"></span><span id="hudName"></span></div>
+      <div class="hud-info"><span id="hudAttempt"></span><span id="hudBest"></span></div>
+    </header>
+
+    <div class="stage" id="stage">
+      <canvas id="canvas"></canvas>
+
+      <div class="meters">
+        <div class="meter"><div class="meter-label">발끝 속도</div><div class="meter-value"><span id="speed">0</span><small>km/h</small></div></div>
+        <div class="meter"><div class="meter-label">기술</div><div class="meter-value"><span id="skill">준비</span></div></div>
+      </div>
+      <div class="time-chip" id="timeChip"></div>
+      <div class="score-chip" id="scoreChip"></div>
+      <div class="hint" id="hint"></div>
+      <div class="timing hidden" id="timing"></div>
+      <div class="banner hidden" id="banner"></div>
+
+      <!-- 차례 안내 -->
+      <div class="panel hidden" id="intro">
+        <div class="intro-turn" id="introTurn"></div>
+        <div class="intro-name" id="introName"></div>
+        <ol class="howto">
+          <li>왼쪽 <b>킥</b>: 몸이 <b>맨 아래를 지날 때</b> 탭! 점점 크게 흔들다가 한 바퀴 넘어가면 <b>대회전</b></li>
+          <li>오른쪽 <b>손 놓기</b>: <b class="gold">금색 구간</b>에서 놓으면 <b>놓았다 잡기</b>, <b class="green">초록 구간</b>에서 놓으면 <b>내리기</b></li>
+          <li>공중에서 <b>웅크리기</b>(왼쪽)를 누르는 동안 빨리 돌아요. 놓았다 잡기는 바가 손에 오면 <b>잡기</b>(오른쪽)!</li>
+          <li>내리기는 <b>발이 아래로</b> 오게 착지. 45초 안에 내려와야 해요</li>
+        </ol>
+        <button type="button" class="btn btn-primary btn-block" id="introGo">준비 완료</button>
+      </div>
+
+      <!-- 연기 결과 -->
+      <div class="panel hidden" id="result">
+        <div class="result-dist" id="resScore"></div>
+        <div class="result-badge hidden" id="resBadge">개인 최고!</div>
+        <div class="result-detail" id="resDetail"></div>
+        <table class="ranking mini" id="resTable"></table>
+        <button type="button" class="btn btn-primary btn-block" id="resNext"></button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button type="button" class="pad pad-kick" id="kickBtn"><span class="pad-icon" id="kickIcon">🦵</span><span id="kickText">킥</span><small id="kickSub">아래 지날 때 탭</small></button>
+      <button type="button" class="pad pad-grip" id="gripBtn"><span class="pad-icon" id="gripIcon">✋</span><span id="gripText">손 놓기</span><small id="gripSub">색 구간에서</small></button>
+    </div>
+  </div>
+
+  <!-- 3. 최종 결과 -->
+  <div id="final" class="screen hidden">
+    <div class="setup">
+      <h1 class="setup-title">🏆 최종 결과</h1>
+      <div class="card"><table class="ranking" id="finalTable"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="againBtn">같은 선수로 다시 하기</button>
+      <button type="button" class="btn btn-block" id="setupBtn">선수 다시 정하기</button>
+      <a class="btn btn-ghost btn-block" href="../../">종목 선택으로</a>
+    </div>
+  </div>
+
+  <script src="../../shared/js/device.js"></script>
+  <script src="../../shared/js/players.js"></script>
+  <script src="../../shared/js/countries.js"></script>
+  <script src="../../shared/js/olympic.js"></script>
+  <script src="../../shared/js/athlete.js"></script>
+  <script src="highbar.js"></script>
+</body>
+</html>

@@ -44,7 +44,7 @@
       title: '🏅 올림픽 모드',
       storageKey: 'olympic',
       maxPlayers: 8,
-      attemptChoices: [3, 5, 7, 10],
+      attemptChoices: [3, 5, 8, 11],
       defaultAttempts: 5,
       attemptLabel: '종목 수',
       attemptUnit: '종목',
