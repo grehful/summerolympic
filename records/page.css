@@ -1,0 +1,19 @@
+/* 기록실 */
+.setup.wide { max-width: 560px; }
+.ev-card h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.ev-card h3 .icon { font-size: 24px; }
+.ev-card .none { color: var(--muted); font-size: 14px; }
+.ranking td.date { color: var(--muted); font-size: 12px; text-align: right; white-space: nowrap; }
+.ranking td.pname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 0; width: 100%; }
+.ranking .more { color: var(--muted); font-size: 13px; text-align: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button {
+  min-height: 40px; padding: 0 14px; border-radius: 999px;
+  background: var(--panel); font-weight: 700; font-size: 15px;
+}
+.chips button[aria-pressed="true"] { background: var(--accent); color: #1a1205; }
+.player-head { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.player-sum { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+.empty { text-align: center; }
+#clearBtn.armed { border-color: var(--bad); color: var(--bad); }
+.ranking td.num { white-space: nowrap; }

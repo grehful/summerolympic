@@ -368,6 +368,7 @@
   function showFinal() {
     ui.finalTable.innerHTML = '<tr><th></th><th>선수</th><th class="num">최고 기록</th></tr>' + rankingRows(null, true);
     show(ui.final);
+    SO.records.showNews(ui.final, 'sprint-100m', SO.records.save('sprint-100m', match.players.map(function (p) { return { name: p.name, value: best(p) }; }), ''));
     SO.olympic.onFinal('sprint-100m', ranking().map(function (r) {
       return { idx: match.players.indexOf(r.p), rank: r.rank, valid: best(r.p) != null };
     }), ui);

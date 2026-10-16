@@ -34,6 +34,13 @@
     .olympic-btn .icon { font-size: 42px; }
     .olympic-btn .name { font-size: 21px; font-weight: 800; display: block; }
     .olympic-btn .desc { font-size: 13px; opacity: 0.8; }
+    .records-btn {
+      display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 14px 18px;
+      border-radius: var(--radius); background: var(--panel); color: var(--text);
+      text-decoration: none; font-size: 18px; font-weight: 800;
+    }
+    .records-btn .muted { font-size: 13px; font-weight: 600; }
+    .records-btn:active { transform: scale(0.98); }
     .tip { margin-top: 20px; font-size: 13px; text-align: center; }
   </style>
 </head>
@@ -51,6 +58,7 @@
         <span class="icon">🏅</span>
         <span><span class="name" id="olympicName">올림픽 모드</span><span class="desc">나라를 골라 여러 종목으로 메달 경쟁! 나라마다 강한 종목이 달라요</span></span>
       </a>
+      <a class="records-btn" href="records/">📋 기록실 <span class="muted">종목별·선수별 최고 기록</span></a>
       <nav class="grid" id="grid"></nav>
       <p class="tip muted" id="tip">크롬 메뉴 ⋮ → <b>홈 화면에 추가</b>를 누르면 앱처럼 전체화면으로 즐길 수 있어요.</p>
     </div>

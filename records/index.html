@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>기록실</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body>
+  <main class="screen">
+    <div class="setup wide">
+      <h1 class="setup-title">📋 기록실</h1>
+      <p class="setup-sub muted">이 폰에서 세운 종목별·선수별 최고 기록</p>
+      <div class="seg" id="tabs">
+        <button type="button" data-tab="event" aria-pressed="true">종목별</button>
+        <button type="button" data-tab="player" aria-pressed="false">선수별</button>
+      </div>
+      <div id="eventView"></div>
+      <div id="playerView" class="hidden">
+        <div class="chips" id="playerChips"></div>
+        <div class="card hidden" id="playerCard"></div>
+      </div>
+      <p class="muted empty hidden" id="empty">아직 기록이 없어요. 경기를 끝까지 하면 최고 기록이 여기에 쌓여요.</p>
+      <button type="button" class="btn btn-ghost btn-block" id="clearBtn">기록 모두 지우기</button>
+      <a class="btn btn-ghost btn-block" href="../">메인으로</a>
+    </div>
+  </main>
+  <script src="../shared/js/games.js"></script>
+  <script src="../shared/js/device.js"></script>
+  <script src="../shared/js/records.js"></script>
+  <script src="page.js"></script>
+</body>
+</html>

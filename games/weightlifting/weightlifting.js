@@ -403,6 +403,7 @@
   function showFinal() {
     ui.finalTable.innerHTML = '<tr><th></th><th>선수</th><th class="num">최고 기록</th></tr>' + rankingRows(null, true);
     show(ui.final);
+    SO.records.showNews(ui.final, 'weightlifting', SO.records.save('weightlifting', match.players.map(function (p) { return { name: p.name, value: best(p) }; }), ''));
     SO.olympic.onFinal('weightlifting', ranking().map(function (r) {
       return { idx: match.players.indexOf(r.p), rank: r.rank, valid: best(r.p) != null };
     }), ui);

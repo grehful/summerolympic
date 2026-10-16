@@ -371,6 +371,7 @@
   function showFinal() {
     ui.finalTable.innerHTML = '<tr><th></th><th>선수</th><th class="num">총점</th></tr>' + rankingRows(null, true);
     show(ui.final);
+    SO.records.showNews(ui.final, 'archery', SO.records.save('archery', match.players.map(function (p) { return { name: p.name, value: total(p) > 0 ? total(p) : null }; }), match.ends + '엔드'));
     SO.olympic.onFinal('archery', ranking().map(function (r) {
       return { idx: match.players.indexOf(r.p), rank: r.rank, valid: total(r.p) > 0 };
     }), ui);
