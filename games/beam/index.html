@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>평균대</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../shared/css/common.css">
+  <link rel="stylesheet" href="../../shared/css/game.css">
+  <link rel="stylesheet" href="beam.css">
+</head>
+<body>
+  <!-- 1. 플레이어 설정 -->
+  <div id="setup" class="screen"></div>
+
+  <!-- 2. 경기 화면 -->
+  <div id="game" class="game no-select hidden">
+    <header class="hud">
+      <div class="hud-player"><span class="dot" id="hudDot"></span><span id="hudName"></span></div>
+      <div class="hud-info"><span id="hudAttempt"></span><span id="hudBest"></span></div>
+    </header>
+
+    <!-- 경기 화면 = 기술 패드 (스와이프·원 그리기) -->
+    <div class="stage" id="stage">
+      <canvas id="canvas"></canvas>
+
+      <div class="meters">
+        <div class="meter"><div class="meter-label">기울기</div><div class="meter-value"><span id="lean">0</span><small>°</small></div></div>
+        <div class="meter"><div class="meter-label">기술</div><div class="meter-value"><span id="skill">준비</span></div></div>
+      </div>
+      <div class="score-chip" id="scoreChip"></div>
+      <div class="req-chip" id="reqChip"></div>
+      <div class="gesture-help" id="gestureHelp">
+        <span>↑ 점프</span><span>→ 다리 찢기</span><span>↓ 공중돌기</span><span>⟳ 턴</span>
+      </div>
+      <div class="timing hidden" id="timing"></div>
+      <div class="banner hidden" id="banner"></div>
+
+      <!-- 차례 안내 -->
+      <div class="panel hidden" id="intro">
+        <div class="intro-turn" id="introTurn"></div>
+        <div class="intro-name" id="introName"></div>
+        <ol class="howto">
+          <li>아래 <b>균형 패드</b>를 좌우로 끌어 몸이 기울어지는 <b>반대쪽으로</b> 버티세요. 30° 넘게 기울면 떨어져요</li>
+          <li>경기 화면에서 <b>↑ 점프 · → 다리 찢어 뛰기 · ↓ 공중돌기 · 원 그리기 = 턴</b>(두 바퀴면 더블 턴)</li>
+          <li>착지할 때마다 몸이 휘청! 바로 균형을 잡으세요. 기술은 <b>5개 이상</b> 해야 감점이 없어요</li>
+          <li>끝까지 가면 <b>↑ 스와이프로 내리기</b>(공중돌기 착지)</li>
+        </ol>
+        <label class="tilt-opt"><input type="checkbox" id="tiltOpt"> 📱 폰을 기울여서 균형 잡기 (패드와 같이 써도 돼요)</label>
+        <button type="button" class="btn btn-primary btn-block" id="introGo">준비 완료</button>
+      </div>
+
+      <!-- 연기 결과 -->
+      <div class="panel hidden" id="result">
+        <div class="result-dist" id="resScore"></div>
+        <div class="result-badge hidden" id="resBadge">개인 최고!</div>
+        <div class="result-detail" id="resDetail"></div>
+        <table class="ranking mini" id="resTable"></table>
+        <button type="button" class="btn btn-primary btn-block" id="resNext"></button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="pad pad-balance" id="balPad">
+        <div class="bal-track"><div class="bal-zone"></div><div class="bal-needle" id="balNeedle"></div><div class="bal-knob" id="balKnob"></div></div>
+        <div class="bal-text"><span>← 뒤로 버티기</span><b id="balText">균형</b><span>앞으로 버티기 →</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 최종 결과 -->
+  <div id="final" class="screen hidden">
+    <div class="setup">
+      <h1 class="setup-title">🏆 최종 결과</h1>
+      <div class="card"><table class="ranking" id="finalTable"></table></div>
+      <button type="button" class="btn btn-primary btn-block" id="againBtn">같은 선수로 다시 하기</button>
+      <button type="button" class="btn btn-block" id="setupBtn">선수 다시 정하기</button>
+      <a class="btn btn-ghost btn-block" href="../../">종목 선택으로</a>
+    </div>
+  </div>
+
+  <script src="../../shared/js/device.js"></script>
+  <script src="../../shared/js/players.js"></script>
+  <script src="../../shared/js/countries.js"></script>
+  <script src="../../shared/js/olympic.js"></script>
+  <script src="../../shared/js/records.js"></script>
+  <script src="../../shared/js/athlete.js"></script>
+  <script src="beam.js"></script>
+</body>
+</html>

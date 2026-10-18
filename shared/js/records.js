@@ -25,6 +25,7 @@
     'trampoline': { fmt: pts },
     'rhythmic': { fmt: pts },
     'high-bar': { fmt: pts },
+    'beam': { fmt: pts },
   };
 
   function load() {
