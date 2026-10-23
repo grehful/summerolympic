@@ -97,13 +97,30 @@
     if (SO.isApp) return; // 앱은 이미 전체화면
     try {
       if (!document.fullscreenElement && el.requestFullscreen) {
-        el.requestFullscreen({ navigationUI: 'hide' }).catch(function () {});
+        el.requestFullscreen({ navigationUI: 'hide' }).then(function () {
+          if (SO._wantLandscape) SO.setOrientation('landscape');
+        }).catch(function () {});
       }
     } catch (e) { /* 무시 */ }
   };
 
   // 안드로이드 앱(APK) 안에서 실행 중인지
   SO.isApp = location.hostname === 'appassets.androidplatform.net';
+
+  // 화면 방향: 'landscape'(가로 고정) | 'auto'. 앱에서는 SOApp 연결로, 웹에서는 전체화면일 때만 잠김
+  SO.setOrientation = function (mode) {
+    SO._wantLandscape = mode === 'landscape';
+    if (window.SOApp && window.SOApp.setOrientation) {
+      try { window.SOApp.setOrientation(mode); } catch (e) { /* 무시 */ }
+      return;
+    }
+    try {
+      if (SO._wantLandscape) screen.orientation.lock('landscape').catch(function () {});
+      else screen.orientation.unlock();
+    } catch (e) { /* 지원 안 함 */ }
+  };
+  // 페이지가 바뀌면 기본은 자동 회전 (가로 전용 페이지는 다시 가로로 요청)
+  if (window.SOApp) SO.setOrientation('auto');
 
   // 오프라인 실행 / 홈 화면 설치용 서비스 워커 (사이트 루트 기준 경로를 넘겨준다). 앱에서는 필요 없음
   SO.registerSW = function (path) {

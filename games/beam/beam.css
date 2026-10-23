@@ -1,38 +1,37 @@
 /* 평균대 전용 (공통은 shared/css/game.css) */
 .stage { touch-action: none; }
-.controls { height: min(24vh, 170px); }
-.pad-balance {
-  position: relative;
-  min-height: 150px;
-  background: radial-gradient(circle at 50% 40%, #1e3a5f, #12263f);
-  padding: 14px 16px;
-  justify-content: space-between;
+.bal-gauge {
+  position: absolute; left: 50%; top: 96px; transform: translateX(-50%);
+  width: min(42%, 380px); pointer-events: none;
 }
 .bal-track {
-  position: relative;
-  width: 100%;
-  height: 64px;
-  border-radius: 32px;
-  background: linear-gradient(90deg, rgba(248, 113, 113, 0.35), rgba(255, 255, 255, 0.06) 35%, rgba(255, 255, 255, 0.06) 65%, rgba(248, 113, 113, 0.35));
-  pointer-events: none;
+  position: relative; height: 26px; border-radius: 13px;
+  background: linear-gradient(90deg, rgba(248, 113, 113, 0.45), rgba(13, 27, 42, 0.7) 35%, rgba(13, 27, 42, 0.7) 65%, rgba(248, 113, 113, 0.45));
 }
 .bal-zone {
   position: absolute; left: 40%; right: 40%; top: 0; bottom: 0;
-  background: rgba(74, 222, 128, 0.18); border-left: 2px solid rgba(74, 222, 128, 0.5); border-right: 2px solid rgba(74, 222, 128, 0.5);
+  background: rgba(74, 222, 128, 0.2); border-left: 2px solid rgba(74, 222, 128, 0.6); border-right: 2px solid rgba(74, 222, 128, 0.6);
 }
 .bal-needle {
-  position: absolute; top: -6px; bottom: -6px; left: 50%; width: 4px; margin-left: -2px;
+  position: absolute; top: -5px; bottom: -5px; left: 50%; width: 4px; margin-left: -2px;
   background: #fde047; border-radius: 2px; box-shadow: 0 0 8px rgba(253, 224, 71, 0.8);
 }
 .bal-needle.warn { background: var(--bad); box-shadow: 0 0 10px rgba(248, 113, 113, 0.9); }
-.bal-knob {
-  position: absolute; top: 50%; left: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px;
-  border-radius: 50%; background: rgba(255, 255, 255, 0.85); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-  opacity: 0.35;
+.bal-knob { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; opacity: 0.85; }
+.bal-text { text-align: center; font-size: 14px; font-weight: 800; margin-top: 4px; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); }
+.bal-text.warn { color: var(--bad); }
+
+.rotate-hint {
+  display: none; position: fixed; inset: 0; z-index: 50;
+  flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  background: rgba(13, 27, 42, 0.96); font-size: 22px; text-align: center;
 }
-.bal-knob.on { opacity: 1; }
-.bal-text { display: flex; white-space: nowrap; gap: 6px; justify-content: space-between; align-items: center; width: 100%; font-size: 13px; font-weight: 700; color: var(--muted); pointer-events: none; }
-.bal-text b { font-size: 20px; color: var(--text); }
+.rotate-icon { font-size: 64px; animation: rot 1.6s ease-in-out infinite; }
+@keyframes rot { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(90deg); } }
+@media (orientation: portrait) { .rotate-hint { display: flex; } }
+
+.tilt-test { font-size: 13px; color: var(--muted); margin: -6px 0 8px; }
+.tilt-test.none { color: var(--bad); }
 
 .score-chip, .req-chip {
   position: absolute;
@@ -64,7 +63,7 @@
   background: var(--accent); color: #1a1205; font-weight: 900;
 }
 
-.tilt-opt { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: -6px 0 14px; color: #dbe5ef; }
+.tilt-opt { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 0 0 12px; color: #dbe5ef; }
 .tilt-opt input { width: 20px; height: 20px; }
 
 .timing {
@@ -81,14 +80,13 @@
 
 #skill { font-size: 0.72em; white-space: nowrap; }
 
-@media (orientation: landscape) and (max-height: 520px) {
-  .game { display: grid; grid-template-columns: 1fr 34vw; grid-template-rows: auto minmax(0, 1fr); }
-  .hud { grid-column: 1 / -1; padding: 4px 14px; }
-  .stage { grid-column: 1; grid-row: 2; }
-  .controls { grid-column: 2; grid-row: 2; display: flex; height: auto; padding: 0; }
-  .pad-balance { margin: 8px; min-height: 0; justify-content: center; gap: 18px; }
-  .bal-text span { display: none; }
-  .bal-text { justify-content: center; }
+@media (max-height: 520px) {
+  .hud { padding: 4px 14px; }
   .meter-value { font-size: 26px; }
   .score-chip, .req-chip { top: 80px; }
+  .panel .howto { font-size: 13px; line-height: 1.4; margin-bottom: 8px; }
+  .panel { max-width: 720px; padding: 12px 18px; }
+  .intro-name { font-size: 24px; margin: 0 0 6px; }
+  .panel .btn { min-height: 44px; }
+  .bal-gauge { top: 80px; }
 }

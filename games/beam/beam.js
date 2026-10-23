@@ -2,7 +2,7 @@
  * 평균대
  *
  * 1. 선수는 평균대 위를 천천히 걸어간다. 몸은 계속 앞뒤로 기우뚱 (거꾸로 선 진자처럼 불안정)
- *    아래 균형 패드를 기울어지는 반대쪽으로 끌어 버틴다 (옵션: 폰 기울이기). 30° 넘으면 떨어짐
+ *    폰을 운전대처럼 좌우로 기울여 버틴다 (가로 화면 전용). 30° 넘으면 떨어짐
  * 2. 경기 화면 스와이프로 기술: ↑ 점프, → 다리 찢어 뛰기, ↓ 뒤 공중돌기, 원 그리기 = 턴 (두 바퀴 = 더블 턴)
  *    공중에서는 균형이 멈춰 있다가 착지할 때 크게 휘청. 착지 후 1.2초 버티면 기술 인정
  * 3. 끝까지 가면 ↑ 스와이프로 내리기 (공중돌기 착지, 그때 균형이 좋을수록 스틱)
@@ -13,7 +13,8 @@
 
   // ---- 튜닝 값 ----
   var A = 2.0;              // 넘어지려는 힘 (rad/s² per rad)
-  var CTRL = 5.0;           // 패드를 끝까지 끌었을 때 버티는 힘
+  var CTRL = 5.0;           // 폰을 끝까지(TILT_FULL) 기울였을 때 버티는 힘
+  var TILT_FULL = 20;       // 이만큼(°) 기울이면 최대로 버팀
   var DAMP = 2.0;
   var GUST = 0.8;           // 저절로 흔들리는 세기
   var FALL = 30;            // 떨어지는 각도 (°)
@@ -41,10 +42,11 @@
     stage: $('stage'), canvas: $('canvas'),
     lean: $('lean'), skill: $('skill'), scoreChip: $('scoreChip'), reqChip: $('reqChip'), gestureHelp: $('gestureHelp'),
     timing: $('timing'), banner: $('banner'),
-    intro: $('intro'), introTurn: $('introTurn'), introName: $('introName'), introGo: $('introGo'), tiltOpt: $('tiltOpt'),
+    intro: $('intro'), introTurn: $('introTurn'), introName: $('introName'), introGo: $('introGo'),
+    tiltRev: $('tiltRev'), tiltTest: $('tiltTest'),
     result: $('result'), resScore: $('resScore'), resBadge: $('resBadge'), resDetail: $('resDetail'),
     resTable: $('resTable'), resNext: $('resNext'),
-    balPad: $('balPad'), balNeedle: $('balNeedle'), balKnob: $('balKnob'), balText: $('balText'),
+    balNeedle: $('balNeedle'), balKnob: $('balKnob'), balText: $('balText'),
     finalTable: $('finalTable'), againBtn: $('againBtn'), setupBtn: $('setupBtn'),
   };
   var ctx = ui.canvas.getContext('2d');
@@ -128,7 +130,8 @@
     ui.introTurn.textContent += SO.olympic.introNote('beam', match.turn % match.players.length);
     ui.introName.textContent = p.name;
     ui.introName.style.color = p.color;
-    ui.tiltOpt.checked = tiltOn;
+    ui.tiltRev.checked = tiltRev;
+    tilt0 = tiltRaw;     // 안내 화면에서는 지금 각도 기준으로 미리 보기
     ui.result.classList.add('hidden');
     ui.intro.classList.remove('hidden');
     ui.timing.classList.add('hidden');
@@ -139,42 +142,44 @@
   ui.introGo.addEventListener('click', function () {
     SO.enterGameMode();
     SO.sound.unlock();
-    tiltOn = ui.tiltOpt.checked;
-    try { localStorage.setItem('so:beam:tilt', tiltOn ? '1' : '0'); } catch (e) { /* 무시 */ }
-    tilt0 = null;   // 지금 폰 각도를 기준으로
+    tilt0 = tiltRaw;   // 시작할 때 폰을 든 각도가 기준
     ui.intro.classList.add('hidden');
     s.phase = 'walk';
     showBanner('시작!', false);
   });
 
-  // ---- 균형 입력: 패드 + (옵션) 폰 기울기 ----
-  var padU = 0, padId = null;
-  function padMove(e) {
-    var r = ui.balPad.getBoundingClientRect();
-    padU = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width * 0.42)));
+  // ---- 균형 입력: 폰 기울기 (운전대처럼 좌우로) ----
+  // 중력 방향을 화면 기준으로 바꿔서, 화면 오른쪽이 내려가면 + 각도
+  function tiltFrom(ax, ay, angle) {
+    var a = (angle || 0) * DEG;
+    var sx = ax * Math.cos(a) - ay * Math.sin(a);
+    var sy = ax * Math.sin(a) + ay * Math.cos(a);
+    if (Math.hypot(sx, sy) < 2) return null;   // 폰이 거의 누워 있으면 판단 안 함
+    return Math.atan2(-sx, sy) / DEG;
   }
-  ui.balPad.addEventListener('pointerdown', function (e) {
-    e.preventDefault();
-    padId = e.pointerId;
-    try { ui.balPad.setPointerCapture(e.pointerId); } catch (err) { /* 무시 */ }
-    padMove(e);
+  var tiltRaw = 0, tilt0 = 0, tiltSeen = false, debugU = null;
+  var tiltRev = false;
+  try { tiltRev = localStorage.getItem('so:beam:tiltRev') === '1'; } catch (e) { /* 무시 */ }
+  ui.tiltRev.addEventListener('change', function () {
+    tiltRev = ui.tiltRev.checked;
+    try { localStorage.setItem('so:beam:tiltRev', tiltRev ? '1' : '0'); } catch (e) { /* 무시 */ }
   });
-  ui.balPad.addEventListener('pointermove', function (e) { if (e.pointerId === padId) padMove(e); });
-  function padUp(e) { if (e.pointerId === padId) { padId = null; padU = 0; } }
-  ui.balPad.addEventListener('pointerup', padUp);
-  ui.balPad.addEventListener('pointercancel', padUp);
-
-  var tiltOn = false, tiltU = 0, tilt0 = null;
-  try { tiltOn = localStorage.getItem('so:beam:tilt') === '1'; } catch (e) { /* 무시 */ }
-  window.addEventListener('deviceorientation', function (e) {
-    if (e.gamma == null) return;
+  window.addEventListener('devicemotion', function (e) {
+    var g = e.accelerationIncludingGravity;
+    if (!g || g.x == null) return;
     var ang = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
-    // 화면 기준 좌우 기울기
-    var v = ang === 90 ? e.beta : ang === -90 || ang === 270 ? -e.beta : e.gamma;
-    if (tilt0 == null) tilt0 = v;
-    tiltU = Math.max(-1, Math.min(1, (v - tilt0) / 20));
+    var t = tiltFrom(g.x, g.y, ang);
+    if (t == null) return;
+    if (!tiltSeen) { tiltSeen = true; tiltRaw = t; tilt0 = t; }
+    tiltRaw += (t - tiltRaw) * 0.3;   // 떨림 줄이기
   });
-  function input() { return Math.max(-1, Math.min(1, padU + (tiltOn ? tiltU : 0))); }
+  // 폰을 오른쪽으로 기울이면 선수도 오른쪽(앞)으로 쏠림 → 앞으로 기울면 폰을 왼쪽으로
+  function input() {
+    if (debugU != null) return debugU;
+    var d = tiltRaw - tilt0;
+    d = ((d + 180) % 360 + 360) % 360 - 180;
+    return Math.max(-1, Math.min(1, -d / TILT_FULL * (tiltRev ? -1 : 1)));
+  }
 
   // ---- 기술 제스처 (경기 화면) ----
   var gest = null;
@@ -493,7 +498,7 @@
     var left = Math.ceil(TIME_LIMIT - s.t);
     var reqText = s.phase === 'intro' ? '' : '기술 ' + s.done.length + '/' + REQ + (left <= 15 && s.phase !== 'landed' ? ' · ⏱ ' + Math.max(0, left) + '초' : '');
     var u = input();
-    var key = [leanText, skill, scoreText, reqText, s.phase, Math.round(u * 50), Math.round(deg)].join('|');
+    var key = [leanText, skill, scoreText, reqText, s.phase, Math.round(u * 50), Math.round(deg), s.phase === 'intro' ? Math.round(tiltRaw) + '/' + tiltSeen + '/' + (performance.now() > 2000) : ''].join('|');
     if (key === lastHud) return;
     lastHud = key;
     ui.lean.textContent = leanText;
@@ -506,9 +511,17 @@
     var pos = 50 + Math.max(-50, Math.min(50, deg / FALL * 50));
     ui.balNeedle.style.left = pos + '%';
     ui.balNeedle.classList.toggle('warn', Math.abs(deg) > WOBBLE);
-    ui.balKnob.style.left = (50 + u * 42) + '%';
-    ui.balKnob.classList.toggle('on', padId != null || (tiltOn && Math.abs(tiltU) > 0.05));
-    ui.balText.textContent = Math.abs(deg) > WOBBLE ? (deg > 0 ? '앞으로 기울어요!' : '뒤로 기울어요!') : '균형';
+    ui.balKnob.style.left = (50 - u * 45) + '%';    // 폰을 기울인 쪽으로
+    var warn = Math.abs(deg) > WOBBLE;
+    ui.balText.textContent = warn ? (deg > 0 ? '← 폰을 왼쪽으로!' : '폰을 오른쪽으로! →') : '균형';
+    ui.balText.classList.toggle('warn', warn);
+    if (s.phase === 'intro') {
+      var none = !tiltSeen && performance.now() > 2000 && debugU == null;
+      var td = Math.round(tiltRaw - tilt0);
+      ui.tiltTest.textContent = none ? '⚠️ 기울기 센서 신호가 없어요 (이 기기에서는 균형을 잡기 어려워요)'
+        : '📱 폰을 기울여 보세요: ' + (Math.abs(td) < 2 ? '똑바로' : (td > 0 ? '오른쪽 ' : '왼쪽 ') + Math.abs(td) + '°');
+      ui.tiltTest.classList.toggle('none', none);
+    }
   }
 
   // ---- 그리기 ----
@@ -520,7 +533,7 @@
     H = Math.max(1, r.height);
     ui.canvas.width = Math.round(W * DPR);
     ui.canvas.height = Math.round(H * DPR);
-    var top = W > H * 1.3 ? 80 : 130;
+    var top = W > H * 1.3 ? 150 : 170;   // 위쪽 계기판·균형 게이지 자리
     PPM = Math.min(W / 3.6, (H - top - 40) / 3.4);
     GROUND = H - 40;
   }
@@ -644,11 +657,14 @@
     state: function () { return s; },
     match: function () { return match; },
     score: function () { return score(); },
-    setInput: function (u) { padU = u; },
+    setInput: function (u) { debugU = u; },
+    tiltFrom: tiltFrom,
+    input: function () { return input(); },
     gesture: function (g) { onGesture(g); },
     classify: classify,
   };
 
+  SO.setOrientation('landscape');   // 가로 화면 전용
   SO.registerSW('../../sw.js');
   if (SO.olympic.active()) SO.olympic.start('beam', startMatch);
   else startSetup();

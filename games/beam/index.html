@@ -32,6 +32,11 @@
       </div>
       <div class="score-chip" id="scoreChip"></div>
       <div class="req-chip" id="reqChip"></div>
+      <!-- 균형 게이지: 노란 바늘 = 몸 기울기, 📱 = 폰 기울기 -->
+      <div class="bal-gauge">
+        <div class="bal-track"><div class="bal-zone"></div><div class="bal-needle" id="balNeedle"></div><div class="bal-knob" id="balKnob">📱</div></div>
+        <div class="bal-text" id="balText">균형</div>
+      </div>
       <div class="gesture-help" id="gestureHelp">
         <span>↑ 점프</span><span>→ 다리 찢기</span><span>↓ 공중돌기</span><span>⟳ 턴</span>
       </div>
@@ -43,12 +48,13 @@
         <div class="intro-turn" id="introTurn"></div>
         <div class="intro-name" id="introName"></div>
         <ol class="howto">
-          <li>아래 <b>균형 패드</b>를 좌우로 끌어 몸이 기울어지는 <b>반대쪽으로</b> 버티세요. 30° 넘게 기울면 떨어져요</li>
+          <li><b>폰을 운전대처럼 좌우로 기울여서</b> 선수를 똑바로 세우세요. 선수가 오른쪽으로 기울면 폰을 왼쪽으로! 30° 넘게 기울면 떨어져요</li>
           <li>경기 화면에서 <b>↑ 점프 · → 다리 찢어 뛰기 · ↓ 공중돌기 · 원 그리기 = 턴</b>(두 바퀴면 더블 턴)</li>
           <li>착지할 때마다 몸이 휘청! 바로 균형을 잡으세요. 기술은 <b>5개 이상</b> 해야 감점이 없어요</li>
-          <li>끝까지 가면 <b>↑ 스와이프로 내리기</b>(공중돌기 착지)</li>
+          <li>끝까지 가면 <b>↑ 스와이프로 내리기</b>(공중돌기 착지). 시작할 때 폰을 든 각도가 기준이에요</li>
         </ol>
-        <label class="tilt-opt"><input type="checkbox" id="tiltOpt"> 📱 폰을 기울여서 균형 잡기 (패드와 같이 써도 돼요)</label>
+        <div class="tilt-test" id="tiltTest">📱 지금 폰을 기울여 보세요 — 위 게이지의 📱이 따라 움직여요</div>
+        <label class="tilt-opt"><input type="checkbox" id="tiltRev"> 기울기 방향 반대로</label>
         <button type="button" class="btn btn-primary btn-block" id="introGo">준비 완료</button>
       </div>
 
@@ -62,12 +68,8 @@
       </div>
     </div>
 
-    <div class="controls">
-      <div class="pad pad-balance" id="balPad">
-        <div class="bal-track"><div class="bal-zone"></div><div class="bal-needle" id="balNeedle"></div><div class="bal-knob" id="balKnob"></div></div>
-        <div class="bal-text"><span>← 뒤로 버티기</span><b id="balText">균형</b><span>앞으로 버티기 →</span></div>
-      </div>
-    </div>
+    <!-- 세로로 들고 있으면 가로로 돌리라는 안내 -->
+    <div class="rotate-hint"><div class="rotate-icon">📱↻</div><div>폰을 <b>가로로</b> 돌려 주세요</div></div>
   </div>
 
   <!-- 3. 최종 결과 -->

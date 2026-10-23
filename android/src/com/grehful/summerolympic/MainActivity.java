@@ -1,11 +1,13 @@
 package com.grehful.summerolympic;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -44,6 +46,7 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(false);
         s.setTextZoom(100); // 시스템 글꼴 크기 설정 때문에 화면이 깨지지 않게
         webView.setWebViewClient(new AssetClient(getAssets()));
+        webView.addJavascriptInterface(new AppBridge(), "SOApp");
         setContentView(webView);
         hideSystemBars();
 
@@ -98,6 +101,21 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         webView.destroy();
         super.onDestroy();
+    }
+
+    /** 게임 페이지에서 부르는 기능: SOApp.setOrientation('landscape' | 'auto') */
+    private final class AppBridge {
+        @JavascriptInterface
+        public void setOrientation(final String mode) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setRequestedOrientation("landscape".equals(mode)
+                            ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                            : ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+                }
+            });
+        }
     }
 
     /** https://appassets.androidplatform.net/... 요청을 assets/www 파일로 응답한다. */
