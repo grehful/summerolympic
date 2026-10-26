@@ -174,3 +174,7 @@ apk/                    빌드된 설치 파일
 python3 -m http.server 8000   # → http://localhost:8000
 ```
 PC에서는 스페이스/→ = 달리기, ↑ 누르고 있기 = 점프.
+
+## 만든 사람들
+- Designed By 조원상
+- Inspired By 연준, 연서

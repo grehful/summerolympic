@@ -41,6 +41,14 @@
     }
     .records-btn .muted { font-size: 13px; font-weight: 600; }
     .records-btn:active { transform: scale(0.98); }
+    .credits {
+      margin-top: 24px; padding: 16px; border-radius: var(--radius);
+      background: var(--panel); text-align: center;
+    }
+    .credits-title { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 2px; margin-bottom: 8px; }
+    .credit { display: flex; justify-content: center; align-items: baseline; gap: 10px; padding: 3px 0; }
+    .credit span { font-size: 13px; color: var(--muted); font-style: italic; min-width: 90px; text-align: right; }
+    .credit b { font-size: 17px; min-width: 90px; text-align: left; }
     .tip { margin-top: 20px; font-size: 13px; text-align: center; }
   </style>
 </head>
@@ -60,6 +68,11 @@
       </a>
       <a class="records-btn" href="records/">📋 기록실 <span class="muted">종목별·선수별 최고 기록</span></a>
       <nav class="grid" id="grid"></nav>
+      <footer class="credits">
+        <div class="credits-title">만든 사람들</div>
+        <div class="credit"><span>Designed By</span><b>조원상</b></div>
+        <div class="credit"><span>Inspired By</span><b>연준, 연서</b></div>
+      </footer>
       <p class="tip muted" id="tip">크롬 메뉴 ⋮ → <b>홈 화면에 추가</b>를 누르면 앱처럼 전체화면으로 즐길 수 있어요.</p>
     </div>
   </main>
